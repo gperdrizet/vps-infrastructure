@@ -1,0 +1,294 @@
+# Prometheus Alert Rules for LogKeep
+groups:
+  - name: logkeep_alerts
+    interval: 30s
+    rules:
+      # Production Application Down - only alert if BOTH blue and green are down
+      - alert: ProductionApplicationDown
+        expr: sum(up{job=~"logkeep-(blue|green)"}) == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: application
+        annotations:
+          summary: "LogKeep production application is completely down"
+          description: "Both blue and green production containers are down. No production service is available."
+      
+      # Staging Container Down
+      - alert: StagingContainerDown
+        expr: up{job="logkeep-staging"} == 0
+        for: 5m
+        labels:
+          severity: warning
+          component: application
+        annotations:
+          summary: "LogKeep staging container is down"
+          description: "Staging container has been down for more than 5 minutes."
+
+      # High CPU Usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is above 85% for more than 5 minutes on {{ $labels.instance }}."
+
+      # Critical CPU Usage
+      - alert: CriticalCPUUsage
+        expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 95
+        for: 2m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "Critical CPU usage detected"
+          description: "CPU usage is above 95% on {{ $labels.instance }}. Immediate attention required."
+
+      # High Memory Usage
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is above 90% for more than 5 minutes on {{ $labels.instance }}."
+
+      # Critical Memory Usage
+      - alert: CriticalMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 95
+        for: 2m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "Critical memory usage detected"
+          description: "Memory usage is above 95% on {{ $labels.instance }}. System may become unstable."
+
+      # Low Disk Space
+      - alert: LowDiskSpace
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 20
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "Low disk space"
+          description: "Less than 20% disk space available on {{ $labels.instance }}."
+
+      # Critical Disk Space
+      - alert: CriticalDiskSpace
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 10
+        for: 2m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "Critical disk space"
+          description: "Less than 10% disk space available on {{ $labels.instance }}. Immediate cleanup required."
+
+      # Database Connection Pool
+      - alert: HighDatabaseConnections
+        expr: pg_stat_activity_count > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "High database connection count"
+          description: "PostgreSQL has {{ $value }} active connections, approaching pool limit."
+
+      # High Response Time (if app exports metrics)
+      # - alert: HighResponseTime
+      #   expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+      #   for: 5m
+      #   labels:
+      #     severity: warning
+      #     component: application
+      #   annotations:
+      #     summary: "High application response time"
+      #     description: "95th percentile response time is above 2 seconds."
+
+      # High Error Rate (if app exports metrics)
+      # - alert: HighErrorRate
+      #   expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.05
+      #   for: 5m
+      #   labels:
+      #     severity: warning
+      #     component: application
+      #   annotations:
+      #     summary: "High error rate"
+      #     description: "Error rate is above 5% for the last 5 minutes."
+
+  - name: container_health_alerts
+    interval: 30s
+    rules:
+      # Container Unhealthy
+      - alert: ContainerUnhealthy
+        expr: container_last_seen{name=~"logkeep-.*|docker-bench-.*|headplane"} < (time() - 60)
+        for: 2m
+        labels:
+          severity: warning
+          component: container
+        annotations:
+          summary: "Container {{ $labels.name }} is unhealthy or not seen"
+          description: "Container {{ $labels.name }} hasn't been seen for more than 1 minute. It may be stopped or unhealthy."
+
+      # Container Restarting Frequently
+      - alert: ContainerRestartingFrequently
+        expr: rate(container_last_seen{name=~"logkeep-.*|docker-bench-.*"}[15m]) > 0.01
+        for: 5m
+        labels:
+          severity: warning
+          component: container
+        annotations:
+          summary: "Container {{ $labels.name }} is restarting frequently"
+          description: "Container {{ $labels.name }} has restarted multiple times in the last 15 minutes."
+
+      # Container High Memory Usage
+      - alert: ContainerHighMemoryUsage
+        expr: (container_memory_usage_bytes{name=~"logkeep-.*|docker-bench-.*"} / container_spec_memory_limit_bytes{name=~"logkeep-.*|docker-bench-.*"}) > 0.90
+        for: 5m
+        labels:
+          severity: warning
+          component: container
+        annotations:
+          summary: "Container {{ $labels.name }} using >90% memory"
+          description: "Container {{ $labels.name }} is using {{ $value | humanizePercentage }} of its memory limit."
+
+      # Container CPU Throttling
+      - alert: ContainerCPUThrottling
+        expr: rate(container_cpu_cfs_throttled_seconds_total{name=~"logkeep-.*|docker-bench-.*"}[5m]) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          component: container
+        annotations:
+          summary: "Container {{ $labels.name }} is being CPU throttled"
+          description: "Container {{ $labels.name }} is experiencing significant CPU throttling, which may impact performance."
+
+  - name: postgresql_alerts
+    interval: 30s
+    rules:
+      # PostgreSQL Down
+      - alert: PostgreSQLDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL database is not responding."
+
+      # Too Many Connections
+      - alert: PostgreSQLTooManyConnections
+        expr: sum by (instance) (pg_stat_activity_count) > (pg_settings_max_connections * 0.8)
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "PostgreSQL approaching connection limit"
+          description: "PostgreSQL is using {{ $value }} connections, which is more than 80% of max_connections."
+
+      # Replication Lag (if using replication)
+      # - alert: PostgreSQLReplicationLag
+      #   expr: pg_replication_lag > 10
+      #   for: 5m
+      #   labels:
+      #     severity: warning
+      #     component: database
+      #   annotations:
+      #     summary: "PostgreSQL replication lag"
+      #     description: "Replication lag is {{ $value }} seconds behind master."
+
+  - name: backup_alerts
+    interval: 1h
+    rules:
+      # Backup Failed (would need custom metric from backup script)
+      # This is a placeholder - implement by having backup script push metrics
+      # - alert: BackupFailed
+      #   expr: time() - logkeep_last_successful_backup_timestamp > 86400
+      #   labels:
+      #     severity: critical
+      #     component: backup
+      #   annotations:
+      #     summary: "Database backup is overdue"
+      #     description: "No successful backup in the last 24 hours."
+
+  - name: traffic_alerts
+    interval: 30s
+    rules:
+      # High Request Rate Spike
+      - alert: HighRequestRateSpike
+        expr: sum(rate(logkeep_requests_total[5m])) > 10
+        for: 2m
+        labels:
+          severity: warning
+          component: application
+        annotations:
+          summary: "Unusually high request rate detected"
+          description: "Request rate is {{ $value | humanize }} req/sec, which is unusually high. This may indicate increased traffic or a potential attack."
+
+      # Critical Request Rate Spike
+      - alert: CriticalRequestRateSpike
+        expr: sum(rate(logkeep_requests_total[5m])) > 50
+        for: 1m
+        labels:
+          severity: critical
+          component: application
+        annotations:
+          summary: "Critical request rate spike"
+          description: "Request rate is {{ $value | humanize }} req/sec. Immediate investigation required - possible DDoS attack."
+
+  - name: ssl_certificate_alerts
+    interval: 1h
+    rules:
+      # SSL Certificate Expiring Soon (30 days)
+      - alert: SSLCertificateExpiringSoon
+        expr: (probe_ssl_earliest_cert_expiry - time()) / 86400 < 30
+        for: 1h
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "SSL certificate expires in {{ $value | humanizeDuration }}"
+          description: "SSL certificate for {{ $labels.instance }} will expire in less than 30 days. Renewal required."
+
+      # SSL Certificate Expiring Very Soon (7 days)
+      - alert: SSLCertificateExpiringVerySoon
+        expr: (probe_ssl_earliest_cert_expiry - time()) / 86400 < 7
+        for: 1h
+        labels:
+          severity: critical
+          component: security
+        annotations:
+          summary: "SSL certificate expires in {{ $value | humanizeDuration }}"
+          description: "SSL certificate for {{ $labels.instance }} will expire in less than 7 days. URGENT renewal required."
+
+      # SSL Certificate Expired
+      - alert: SSLCertificateExpired
+        expr: probe_ssl_earliest_cert_expiry - time() < 0
+        for: 5m
+        labels:
+          severity: critical
+          component: security
+        annotations:
+          summary: "SSL certificate has EXPIRED"
+          description: "SSL certificate for {{ $labels.instance }} has expired. Site may be inaccessible or showing security warnings."
+
+      # SSL Probe Failed
+      - alert: SSLProbeFailed
+        expr: probe_success{job="ssl-certs"} == 0
+        for: 5m
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "SSL probe failed for {{ $labels.instance }}"
+          description: "Unable to probe {{ $labels.instance }}. Site may be down or SSL certificate may be invalid."

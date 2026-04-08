@@ -1,0 +1,96 @@
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ..:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../.env
+    environment:
+      - DEBUG=True
+      - DATABASE_URL=postgres://bench:bench@db:5432/bench
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  db:
+    image: postgres:16-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=bench
+      - POSTGRES_USER=bench
+      - POSTGRES_PASSWORD=bench
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bench"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  celery:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: celery -A bootcamp worker -l info
+    volumes:
+      - ..:/app
+    env_file:
+      - ../.env
+    environment:
+      - DATABASE_URL=postgres://bench:bench@db:5432/bench
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  celery-beat:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: celery -A bootcamp beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - ..:/app
+    env_file:
+      - ../.env
+    environment:
+      - DATABASE_URL=postgres://bench:bench@db:5432/bench
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "8025:8025"  # Web UI
+      - "1025:1025"  # SMTP
+    environment:
+      - MP_SMTP_AUTH_ACCEPT_ANY=true
+      - MP_SMTP_AUTH_ALLOW_INSECURE=true
+
+volumes:
+  postgres_data:
