@@ -7,7 +7,7 @@
 
 ## Pre-Implementation Summary
 
-### ✅ Confirmed Details
+### Confirmed Details
 
 **Infrastructure:**
 - VPS: gatekeeper (74.208.107.78), Ubuntu, 19 containers
@@ -121,7 +121,7 @@ BENCH_STAGING_DB=postgresql://bench_user:<password>@100.64.0.2:5432/bench_stagin
 
 ---
 
-## 📋 REVISED EXECUTION ORDER
+## REVISED EXECUTION ORDER
 
 ### Prerequisites
 
@@ -143,7 +143,7 @@ ssh pyrite "ls -lh /mnt/storage/backups/vps/"
 - `/srv/backups` and `/var/log/vps-backup.log` owned by `siderealyear`
 - SSH to pyrite uses your `~/.ssh/config` settings (hostname: pyrite, port: 4444)
 
-**Daily Backup Schedule: ✅ Configured**
+**Daily Backup Schedule: Configured**
 
 Cron job configured in user crontab (siderealyear, not root):
 ```bash
@@ -159,7 +159,7 @@ crontab -e  # Edit crontab
 
 ---
 
-### Phase 1: Quick Wins (Week 1, 8-12 hours) ✅ READY TO START
+### Phase 1: Quick Wins (Week 1, 8-12 hours) READY TO START
 
 **No changes from original plan.** All tasks can proceed immediately:
 
@@ -198,7 +198,7 @@ crontab -e  # Edit crontab
 
 ---
 
-### Phase 3: Migration (Week 3-4, 26-38 hours) ⚠️ REVISED ORDER
+### Phase 3: Migration (Week 3-4, 26-38 hours) REVISED ORDER
 
 **CRITICAL CHANGE:** Database consolidation moved to AFTER network consolidation.
 
@@ -229,7 +229,7 @@ crontab -e  # Edit crontab
 - [ ] 3.28 - Remove unused SSH reverse tunnel (no action needed - nothing listening)
 - **Downtime:** <1 min
 
-**Service 4: Headplane - SKIP** ✅ Already working, user said don't touch it
+**Service 4: Headplane - SKIP** Already working, user said don't touch it
 
 **Service 8: Network Consolidation (1 hour)**
 - [ ] 3.59 - Verify Tailscale peer identity: `tailscale status`
@@ -342,7 +342,7 @@ crontab -e  # Edit crontab
 
 ---
 
-## 🚀 READY TO START
+## READY TO START
 
 **Next Action:** Begin Phase 1, Task 1.1 - Clean up unused Docker networks
 
@@ -364,7 +364,7 @@ crontab -e  # Edit crontab
 
 ---
 
-## 📝 NOTES
+## NOTES
 
 1. **No monitoring gaps matter** - services are dev/testing only
 2. **Downtime acceptable** - not supporting real users

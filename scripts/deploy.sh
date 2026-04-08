@@ -22,19 +22,19 @@ SERVICE="${1:-all}"
 
 # Logging
 log_info() {
-    echo -e "${BLUE}ℹ${NC} $1"
+    echo -e "${BLUE}[INFO]${NC} $1"
 }
 
 log_success() {
-    echo -e "${GREEN}✓${NC} $1"
+    echo -e "${GREEN}[OK]${NC} $1"
 }
 
 log_warn() {
-    echo -e "${YELLOW}⚠${NC} $1"
+    echo -e "${YELLOW}[WARN]${NC} $1"
 }
 
 log_error() {
-    echo -e "${RED}✗${NC} $1"
+    echo -e "${RED}[ERROR]${NC} $1"
 }
 
 # Pre-deployment checks
@@ -110,9 +110,9 @@ deploy_monitoring() {
 
 # Main deployment logic
 main() {
-    echo "========================================"
+    echo "----------------------------------------"
     echo "  VPS Infrastructure Deployment"
-    echo "========================================"
+    echo "----------------------------------------"
     echo ""
     
     check_prerequisites
@@ -143,9 +143,9 @@ main() {
     esac
     
     echo ""
-    echo "========================================"
+    echo "----------------------------------------"
     log_success "Deployment complete!"
-    echo "========================================"
+    echo "----------------------------------------"
     echo ""
     log_info "Run './scripts/health-check.sh' to verify services"
 }

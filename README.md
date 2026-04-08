@@ -2,7 +2,7 @@
 
 Infrastructure as code for VPS services, monitoring, and configuration management.
 
-## 📁 Repository Structure
+## Repository structure
 
 ```
 vps-infrastructure/
@@ -24,16 +24,16 @@ vps-infrastructure/
 └── README.md                  # This file
 ```
 
-## 🚀 Quick Start
+## Quick start
 
-### 1. Clone Repository
+### 1. Clone repository
 
 ```bash
 git clone git@github.com:gperdrizet/vps-infrastructure.git
 cd vps-infrastructure
 ```
 
-### 2. Configure Environment
+### 2. Configure environment
 
 ```bash
 # Copy template and fill in your secrets
@@ -41,7 +41,7 @@ cp .env.template .env
 nano .env
 ```
 
-### 3. Deploy Services
+### 3. Deploy services
 
 ```bash
 # Deploy all services
@@ -53,13 +53,13 @@ nano .env
 ./scripts/deploy.sh monitoring
 ```
 
-### 4. Verify Health
+### 4. Verify health
 
 ```bash
 ./scripts/health-check.sh
 ```
 
-## 📋 Services Overview
+## Services overview
 
 ### Applications
 
@@ -88,21 +88,21 @@ nano .env
   - llm.perdrizet.org → pyrite:8502 (via Tailscale)
   - db.perdrizet.org:54321 → pyrite:5432 (TCP stream)
 
-### Remote Services (Pyrite @ 100.64.0.2)
+### Remote services (Pyrite @ 100.64.0.2)
 
 - PostgreSQL 16 (containerized)
 - llama.cpp (systemd service on :8502)
 - postgres_exporter (metrics)
 - RAID array with SSD cache
 
-## 🔐 Security
+## Security
 
 - **Never commit `.env` file** - it contains secrets
 - Secrets are externalized via environment variables
 - Database passwords are generated securely
 - SSH keys used for automated backups
 
-## 📦 Backups
+## Backups
 
 Automated daily backups to pyrite:
 
@@ -117,9 +117,9 @@ ssh pyrite "ls -lh /mnt/storage/backups/vps/"
 0 2 * * * /srv/backups/backup-databases.sh
 ```
 
-## 🔄 Migration Status
+## Migration status
 
-### Phase 1: Quick Wins ✅ COMPLETE
+### Phase 1: Quick wins complete
 - Docker network cleanup
 - UFW rules cleanup
 - Health check fixes
@@ -127,41 +127,41 @@ ssh pyrite "ls -lh /mnt/storage/backups/vps/"
 - Container health alerts
 - Backup system (local + remote to pyrite)
 
-### Phase 2: Foundation 🚧 IN PROGRESS
+### Phase 2: Foundation in progress
 - Version control setup (this repository)
 - Configuration export
 - Deployment automation
 
-### Phase 3: Migration 📅 PLANNED
+### Phase 3: Migration planned
 - Database migration to pyrite
 - Network consolidation (Tailscale only)
 - Monitoring stack separation
 
-## 📊 Monitoring
+## Monitoring
 
-### Prometheus Targets
+### Prometheus targets
 
 - cAdvisor: Container metrics
 - Node Exporter: System metrics
 - Blackbox Exporter: SSL certificate monitoring
 - Postgres Exporter: Database metrics (pyrite)
 
-### SSL Certificates Monitored
+### SSL certificates monitored
 
 - bench.perdrizet.org (57 days remaining)
 - staging.perdrizet.org (36 days)
 - headscale.perdrizet.org (36 days)
 - llm.perdrizet.org (monitoring configured)
 
-### Alerts Configured
+### Alerts configured
 
 - SSL certificate expiration (30/7 day warnings)
 - Container health (unhealthy, restarting, high memory, CPU throttling)
 - Disk space (warning <20%, critical <10%)
 
-## 🛠️ Maintenance
+## Maintenance
 
-### Update Docker Images
+### Update Docker images
 
 ```bash
 cd /opt/logkeep/docker
@@ -173,7 +173,7 @@ docker compose pull
 docker compose up -d
 ```
 
-### View Logs
+### View logs
 
 ```bash
 # All containers
@@ -187,7 +187,7 @@ docker logs -f logkeep-prometheus
 docker logs -f logkeep-grafana
 ```
 
-### Restart Services
+### Restart services
 
 ```bash
 # LogKeep
@@ -200,28 +200,28 @@ cd /opt/bench/docker && docker compose restart
 sudo systemctl restart nginx
 ```
 
-## 📝 Documentation
+## Documentation
 
 - [Implementation Guide](./docs/IMPLEMENTATION-GUIDE.md) - Detailed migration plan
 - [Services Overview](./docs/services.md) - Current service inventory
 
-## 🔗 Resources
+## Resources
 
 - **VPS**: gatekeeper (74.208.107.78)
 - **Remote**: pyrite (100.64.0.2 via Tailscale)
 - **GitHub**: https://github.com/gperdrizet/vps-infrastructure
 - **DNS**: Managed via Ionos dashboard
 
-## 💡 Tips
+## Tips
 
 - Always test nginx config after changes: `sudo nginx -t`
 - Check container health: `docker ps --format "table {{.Names}}\t{{.Status}}"`
 - Monitor disk space: `df -h /`
 - Check backup logs: `tail -f /var/log/vps-backup.log`
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
-### Container Won't Start
+### Container won't start
 
 ```bash
 # Check logs
@@ -234,7 +234,7 @@ docker compose config
 docker compose up -d --force-recreate <service-name>
 ```
 
-### Database Connection Issues
+### Database connection issues
 
 ```bash
 # Test local postgres
@@ -244,7 +244,7 @@ docker exec logkeep-postgres psql -U logkeep_admin -d logkeep -c "SELECT version
 psql -h 100.64.0.2 -p 5432 -U logkeep_user -d logkeep_prod
 ```
 
-### Monitoring Not Collecting Metrics
+### Monitoring not collecting metrics
 
 ```bash
 # Check Prometheus targets
@@ -254,7 +254,7 @@ curl http://localhost:9090/api/v1/targets | jq '.data.activeTargets[] | {job: .l
 docker exec logkeep-prometheus kill -HUP 1
 ```
 
-## 📜 License
+## License
 
 Private repository - internal infrastructure documentation.
 

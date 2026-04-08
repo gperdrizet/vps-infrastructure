@@ -33,22 +33,22 @@ check_container() {
         
         if [[ "$running" == "true" ]]; then
             if [[ "$status" == "healthy" ]] || [[ "$status" == "none" ]]; then
-                echo -e "${GREEN}✓${NC} $container is running"
+                echo -e "${GREEN}[OK]${NC} $container is running"
                 PASSED=$((PASSED + 1))
             else
-                echo -e "${YELLOW}⚠${NC} $container is running but status: $status"
+                echo -e "${YELLOW}[WARN]${NC} $container is running but status: $status"
                 WARNINGS=$((WARNINGS + 1))
             fi
         else
-            echo -e "${RED}✗${NC} $container exists but not running"
+            echo -e "${RED}[ERROR]${NC} $container exists but not running"
             FAILED=$((FAILED + 1))
         fi
     else
         if [[ "$required" == "true" ]]; then
-            echo -e "${RED}✗${NC} $container not found"
+            echo -e "${RED}[ERROR]${NC} $container not found"
             FAILED=$((FAILED + 1))
         else
-            echo -e "${BLUE}ℹ${NC} $container not found (optional)"
+            echo -e "${BLUE}[INFO]${NC} $container not found (optional)"
             PASSED=$((PASSED + 1))
         fi
     fi
@@ -64,10 +64,10 @@ check_http_endpoint() {
     local response=$(curl -s -o /dev/null -w "%{http_code}" "$url" 2>/dev/null || echo "000")
     
     if [[ "$response" == "$expected_code" ]]; then
-        echo -e "${GREEN}✓${NC} $name responds with HTTP $response"
+        echo -e "${GREEN}[OK]${NC} $name responds with HTTP $response"
         PASSED=$((PASSED + 1))
     else
-        echo -e "${RED}✗${NC} $name responds with HTTP $response (expected $expected_code)"
+        echo -e "${RED}[ERROR]${NC} $name responds with HTTP $response (expected $expected_code)"
         FAILED=$((FAILED + 1))
     fi
 }
@@ -80,18 +80,18 @@ check_port() {
     TOTAL=$((TOTAL + 1))
     
     if nc -z -w 2 "$host" "$port" 2>/dev/null; then
-        echo -e "${GREEN}✓${NC} $name port $port is open on $host"
+        echo -e "${GREEN}[OK]${NC} $name port $port is open on $host"
         PASSED=$((PASSED + 1))
     else
-        echo -e "${RED}✗${NC} $name port $port is not accessible on $host"
+        echo -e "${RED}[ERROR]${NC} $name port $port is not accessible on $host"
         FAILED=$((FAILED + 1))
     fi
 }
 
 main() {
-    echo "========================================"
+    echo "----------------------------------------"
     echo "  VPS Health Check"
-    echo "========================================"
+    echo "----------------------------------------"
     echo ""
     
     echo "=== Core Containers ==="
