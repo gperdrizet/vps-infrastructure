@@ -1,5 +1,6 @@
 server {
     server_name bench.perdrizet.org;
+    include snippets/security-headers.conf;
 
     location / {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -30,6 +31,7 @@ server {
     listen 80;
     listen [::]:80;
     server_name bench.perdrizet.org;
+    include snippets/security-headers.conf;
     return 404; # managed by Certbot
 
 

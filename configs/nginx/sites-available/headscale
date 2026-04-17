@@ -6,6 +6,7 @@
 server {
     listen 80;
     server_name headscale.perdrizet.org;
+    include snippets/security-headers.conf;
 
     # Redirect all HTTP traffic to HTTPS.
     return 301 https://$host$request_uri;
@@ -14,6 +15,7 @@ server {
 server {
     listen 443 ssl http2;
     server_name headscale.perdrizet.org;
+    include snippets/security-headers.conf;
 
     ssl_certificate     /etc/nginx/certs/perdrizet.org_fullchain.pem;
     ssl_certificate_key /etc/nginx/certs/perdrizet.org_starter_wildcard.key;
