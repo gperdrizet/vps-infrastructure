@@ -1,7 +1,8 @@
 # VPS Infrastructure Reorganization - Implementation Guide
 
 **Created:** April 7, 2026  
-**Status:** Phase 3 Part A complete, paused before Part B (database migration)
+**Last Updated:** April 20, 2026  
+**Status:** Phase 3C complete, Phase 3D (database migration) pending
 
 ---
 
@@ -17,10 +18,10 @@
 
 **Current State:**
 - LogKeep: `/opt/logkeep/docker/` - has blue (8001), green (8002), staging (8003)
-  - DB: `logkeep-postgres` with databases: `logkeep`, `logkeep_staging`
+  - DB: `logkeep-postgres` (local container) with databases: `logkeep`, `logkeep_staging`
   - User: `logkeep_admin`
-- Bench: `/opt/bench/docker/` - single deployment (8010)
-  - DB: `docker-bench-postgres-1` with database: `bench`
+- Bench: `/opt/bench/docker/` - single deployment (8010, under 'bench' project)
+  - DB: `bench-bench-postgres-1` (local container) with database: `bench`
   - User: `bench`
   - No staging environment yet
 
@@ -41,7 +42,46 @@
 
 ---
 
-## 🗄️ DATABASE REQUIREMENTS FOR PYRITE
+## ✅ PHASE 3C COMPLETION SUMMARY (April 20, 2026)
+
+### Docker Project Cleanup
+
+The stale 'docker' compose project has been eliminated. All containers now use proper project names:
+
+| Project | Containers | Files |
+|---------|-----------|-------|
+| **bench** | 5 | `/opt/bench/docker/docker-compose.prod.yml` |
+| **logkeep** | 6 | `/opt/logkeep/docker/docker-compose.{prod,staging}.yml` |
+| **infra** | 8 | `/srv/infra/docker-compose.monitoring.yml` |
+
+#### Changes Made
+
+1. **Bench Project Rename**
+   - Moved containers from 'docker' to 'bench' project: `docker-bench-*` → `bench-bench-*`
+   - Modified compose file to use external volume `docker_bench-postgres-data` to preserve data
+   - All 5 containers (web, postgres, redis, celery, celery-beat) now running under 'bench' project
+
+2. **LogKeep Project Consolidation**
+   - Moved staging container from 'docker' to 'logkeep' project
+   - Staging compose now part of unified logkeep project with production
+   - Removed 8 stale monitoring services from logkeep-docker-compose.prod.yml
+   - Removed obsolete `version` keys from compose files
+
+3. **Network Cleanup**
+   - Orphaned `docker_logkeep-network` removed
+   - Clean network structure: `bench_bench-network`, `logkeep_logkeep-network`, `monitoring-network`
+   - Prometheus scrapes targets on monitoring-network and logkeep_logkeep-network
+
+4. **Nginx & Configuration Sync**
+   - model.conf: Comments updated (WireGuard → Tailscale)
+   - logkeep.conf: Removed OCSP stapling block to match live
+   - All configs synced to repo
+
+5. **Git Commit**
+   - All changes committed: `f52f7ef - Sync repo with live infrastructure`
+   - 11 files updated, 277 insertions, 351 deletions
+
+---
 
 **IMPORTANT:** User will create these after Phase 3 Services 1, 3, 8 are complete (before Services 2, 5, 6, 7).
 

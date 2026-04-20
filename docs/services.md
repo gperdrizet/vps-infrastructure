@@ -4,7 +4,7 @@ A record of all services running on gatekeeper (74.208.107.78), the ports
 they use, and any domains they are exposed on. Keep this file updated whenever
 a service is added, removed, or reconfigured.
 
-Last updated: 2026-04-20
+Last updated: 2026-04-20 (Docker project cleanup complete)
 
 
 ---
@@ -82,8 +82,9 @@ Managed by `/srv/infra/docker-compose.monitoring.yml`.
 
 ### Docker containers (logkeep stack)
 
-Managed by `/opt/logkeep/docker/docker-compose.prod.yml` and
-`docker-compose.staging.yml`.
+Managed by `/opt/logkeep/docker/` (project: `logkeep`).
+- Production services defined in `docker-compose.prod.yml`
+- Staging services defined in `docker-compose.staging.yml`
 
 | Port  | Container                  | Service                     |
 |-------|----------------------------|-----------------------------|
@@ -96,15 +97,15 @@ Managed by `/opt/logkeep/docker/docker-compose.prod.yml` and
 
 ### Docker containers (bench stack)
 
-Managed by `/opt/bench/docker/docker-compose.prod.yml`.
+Managed by `/opt/bench/docker/docker-compose.prod.yml` (project: `bench`).
 
-| Port  | Container                 | Service                  |
-|-------|---------------------------|--------------------------|
-| 8010  | docker-bench-web-1        | Docker-bench web app     |
-| 5432  | docker-bench-postgres-1   | PostgreSQL (internal)    |
-| N/A   | docker-bench-celery-1     | Celery worker (internal) |
-| N/A   | docker-bench-celery-beat-1| Celery beat (internal)   |
-| 6379  | docker-bench-redis-1      | Redis (internal)         |
+| Port  | Container                  | Service                  |
+|-------|----------------------------|--------------------------|
+| 8010  | bench-bench-web-1          | Bench web app            |
+| 5432  | bench-bench-postgres-1     | PostgreSQL (internal)    |
+| N/A   | bench-bench-celery-1       | Celery worker (internal) |
+| N/A   | bench-bench-celery-beat-1  | Celery beat (internal)   |
+| 6379  | bench-bench-redis-1        | Redis (internal)         |
 
 
 ---

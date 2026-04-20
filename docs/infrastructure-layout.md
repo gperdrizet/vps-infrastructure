@@ -94,14 +94,14 @@ Current VPS organization after Phase 1-3C (Monitoring Separation, Backups, Nginx
 - **logkeep-blue** (8001) - LogKeep production (blue slot)
 - **logkeep-green** (8002) - LogKeep production (green slot, started on deploy)
 - **logkeep-staging** (8003) - LogKeep staging environment
-- **docker-bench-web-1** (8010) - Bench web application
-- **docker-bench-celery-1** - Bench background tasks
-- **docker-bench-celery-beat-1** - Bench scheduled tasks
+- **bench-bench-web-1** (8010) - Bench web application
+- **bench-bench-celery-1** - Bench background tasks
+- **bench-bench-celery-beat-1** - Bench scheduled tasks
 
 ### Support Services
 - **logkeep-postgres** (5432) - PostgreSQL for LogKeep
-- **docker-bench-postgres-1** - PostgreSQL for Bench
-- **docker-bench-redis-1** - Redis for Bench/Celery
+- **bench-bench-postgres-1** (5432) - PostgreSQL for Bench
+- **bench-bench-redis-1** (6379) - Redis for Bench/Celery
 
 ### Exporters
 - **logkeep-nginx-exporter** (9113) - Nginx metrics for Prometheus
@@ -114,10 +114,10 @@ Current VPS organization after Phase 1-3C (Monitoring Separation, Backups, Nginx
 
 ## Networks
 
-- **monitoring-network** - Independent monitoring stack
-- **logkeep_logkeep-network** - LogKeep app network
-- **docker_default** - Bench app network
-- Prometheus connects to both monitoring-network and logkeep_logkeep-network for scraping
+- **monitoring-network** - Monitoring stack (independent)
+- **logkeep_logkeep-network** - LogKeep app stack (prod + staging)
+- **bench_bench-network** - Bench app stack
+- Prometheus scrapes targets on both monitoring-network and logkeep_logkeep-network
 
 ## Phase 3 Progress
 
@@ -143,6 +143,14 @@ Current VPS organization after Phase 1-3C (Monitoring Separation, Backups, Nginx
 - WireGuard decommissioned
 - All remote connectivity via Tailscale
 - nginx proxies updated to Tailscale IPs
+
+✅ **Docker Project Cleanup** (Complete - 2026-04-20)
+- Bench: reassigned from 'docker' to 'bench' project
+- LogKeep-staging: reassigned to 'logkeep' project
+- Container names updated to match proper project structure
+- Stale monitoring services removed from logkeep compose
+- Orphaned docker_logkeep-network cleaned up
+- Three clean projects: infra (8), logkeep (6), bench (5)
 
 🔲 **Phase 3D: Database Migration** (Next - requires user action)
 - Create databases on pyrite (logkeep_prod, logkeep_staging, bench_prod, bench_staging)

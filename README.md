@@ -65,19 +65,22 @@ nano .env
 - **LogKeep** (`/opt/logkeep/docker/`)
   - Production: Port 8001-8002 (blue/green deployment)
   - Staging: Port 8003
-  - Database: PostgreSQL (local container → migrating to pyrite)
+  - Database: PostgreSQL 5432 (local container, planned migration to pyrite)
 
 - **Bench** (`/opt/bench/docker/`)
   - Production: Port 8010
-  - Database: PostgreSQL (local container → migrating to pyrite)
+  - Database: PostgreSQL 5432 (local container, planned migration to pyrite)
 
 ### Infrastructure
 
-- **Monitoring Stack**
-  - Prometheus: :9090 (metrics collection)
-  - Grafana: :3000 (dashboards)
+- **Monitoring Stack** (8 containers at `/srv/infra/`)
+  - Prometheus: :9090 (metrics collection, 30-day retention)
+  - Grafana: :3000 (dashboards and visualization)
   - Loki: :3100 (log aggregation)
-  - Alertmanager: :9093 (alert routing)
+  - Alertmanager: :9093 (alert routing to email)
+  - Promtail: Log shipper to Loki
+  - Node Exporter: :9100 (system metrics)
+  - cAdvisor: :8080 (container metrics)
   - Blackbox Exporter: :9115 (SSL/endpoint monitoring)
 
 - **Nginx** (Reverse Proxy)
@@ -120,38 +123,22 @@ ssh pyrite "ls -lh /mnt/storage/backups/vps/"
 0 2 * * * /srv/backups/backup-databases.sh
 ```
 
-## Migration status
+## Status
 
-### Phase 1: Quick wins ✅ Complete
-- Docker network cleanup
-- UFW rules cleanup
-- Health check fixes
-- SSL certificate monitoring (Blackbox Exporter)
-- Container health alerts
-- Backup system (local + remote to pyrite)
+### ✅ Complete
 
-### Phase 2: Foundation ✅ Complete
-- Version control setup (this repository)
-- Configuration export
-- Deployment automation
+- **Phase 1: Quick wins** - Docker network cleanup, UFW, health checks, backup system, SSL cert monitoring
+- **Phase 2: Foundation** - Version control (this repo), configuration export, deployment automation
+- **Phase 3A: Monitoring Stack Separation** - Independent monitoring at `/srv/infra/`, 10.6GB data migrated
+- **Phase 3B: Backup System** - Daily backups at 2 AM, 7-day retention, synced to pyrite (100.64.0.2)
+- **Phase 3C: Nginx Configuration** - conf.d structure, blue/green deploy via symlink, all SSL on Let's Encrypt
+- **Network Consolidation** - WireGuard decommissioned, all remote connectivity via Tailscale
+- **Docker Project Cleanup** - Proper compose project assignments (bench, logkeep, infra)
 
-### Phase 3A: Monitoring Separation ✅ Complete
-- Independent monitoring stack at /srv/infra/
-- 10.6GB historical data migrated
-- monitoring-network isolated from apps
+### ⏳ Next
 
-### Phase 3B-C: Backups + Nginx ✅ Complete
-- Daily backups working, synced to pyrite
-- Nginx migrated to conf.d, all SSL on Let's Encrypt
-- Blue/green deploy for LogKeep via symlink
-
-### Network Consolidation ✅ Complete
-- WireGuard decommissioned
-- All remote connectivity via Tailscale
-
-### Phase 3D: Database Migration ⏳ Next
-- Migrate PostgreSQL to pyrite
-- Remove local database containers
+- **Phase 3D: Database Migration** - Migrate PostgreSQL databases to pyrite
+- Clean up local database containers after migration
 
 ## Monitoring
 
