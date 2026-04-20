@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   # Staging Application
@@ -27,6 +26,11 @@ services:
     labels:
       - "com.logkeep.slot=staging"
       - "com.logkeep.environment=staging"
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
 
 networks:
   logkeep-network:

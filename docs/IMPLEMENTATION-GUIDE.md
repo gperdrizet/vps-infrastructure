@@ -1,7 +1,7 @@
 # VPS Infrastructure Reorganization - Implementation Guide
 
 **Created:** April 7, 2026  
-**Status:** Ready to begin Phase 1  
+**Status:** Phase 3 Part A complete, paused before Part B (database migration)
 
 ---
 
@@ -181,20 +181,20 @@ crontab -e  # Edit crontab
 
 **No changes from original plan:**
 
-- [ ] 2.1 - Create `vps-infrastructure` GitHub repository
-- [ ] 2.2 - Set up repository structure
-- [ ] 2.3 - Export current docker-compose files
+- [x] 2.1 - Create `vps-infrastructure` GitHub repository
+- [x] 2.2 - Set up repository structure
+- [x] 2.3 - Export current docker-compose files
 - [ ] 2.4 - Create `docker-compose.core.yml`
 - [ ] 2.5 - Externalize secrets to `.env` template
-- [ ] 2.6 - Export nginx configs
-- [ ] 2.7 - Export Prometheus/Grafana configs
-- [ ] 2.8 - Create deployment script
-- [ ] 2.9 - Create health check script
+- [x] 2.6 - Export nginx configs
+- [x] 2.7 - Export Prometheus/Grafana configs
+- [x] 2.8 - Create deployment script
+- [x] 2.9 - Create health check script
 - [ ] 2.10 - Create documentation generation script
-- [ ] 2.11 - Write documentation
-- [ ] 2.12 - Verify Ionos wildcard certificate (user will research)
-- [ ] 2.13 - Plan Let's Encrypt to Ionos migration (deferred)
-- [ ] 2.14 - Create `/srv/infra/` directory structure
+- [x] 2.11 - Write documentation
+- [x] 2.12 - Verify Ionos wildcard certificate (user will research)
+- [x] 2.13 - Plan Let's Encrypt to Ionos migration (deferred)
+- [x] 2.14 - Create `/srv/infra/` directory structure
 
 ---
 
@@ -204,43 +204,43 @@ crontab -e  # Edit crontab
 
 #### Part A: Infrastructure Migration (No database dependencies)
 
-**Service 1: Monitoring Stack Separation (3-4 hours)**
-- [ ] 3.1 - Export Grafana dashboards
-- [ ] 3.2 - Create `docker-compose.monitoring.yml` (rename containers: `monitoring-*`)
-- [ ] 3.3 - Stop current `logkeep-*` monitoring containers
-- [ ] 3.4 - Move volumes to `/srv/infra/data/monitoring/`
-- [ ] 3.5 - Start new independent monitoring stack
-- [ ] 3.6 - Validate Grafana access, check datasources
-- [ ] 3.7 - Verify Prometheus scraping all targets
-- [ ] 3.8 - Test alert rules and Alertmanager
-- [ ] 3.9 - Confirm monitoring independence
+**Service 1: Monitoring Stack Separation (3-4 hours)** ✅ COMPLETE
+- [x] 3.1 - Export Grafana dashboards
+- [x] 3.2 - Create `docker-compose.monitoring.yml` (rename containers: `monitoring-*`)
+- [x] 3.3 - Stop current `logkeep-*` monitoring containers
+- [x] 3.4 - Move volumes to `/srv/infra/data/monitoring/`
+- [x] 3.5 - Start new independent monitoring stack
+- [x] 3.6 - Validate Grafana access, check datasources
+- [x] 3.7 - Verify Prometheus scraping all targets
+- [x] 3.8 - Test alert rules and Alertmanager
+- [x] 3.9 - Confirm monitoring independence
 - **Downtime:** 5 min (acceptable)
 
-**Service 3: Public Access Strategy (1 hour)**
-- [ ] 3.19 - Update nginx TCP stream for PostgreSQL (db.perdrizet.org:54321 → 100.64.0.2:5432)
-- [ ] 3.20 - Rename gpt.conf → llm.conf, update domain (llm.perdrizet.org → 100.64.0.2:8502)
-- [ ] 3.21 - Add DNS A records (user action: db.perdrizet.org, llm.perdrizet.org)
-- [ ] 3.22 - Test nginx config: `nginx -t`
-- [ ] 3.23 - Reload nginx: `nginx -s reload`
-- [ ] 3.24 - Test PostgreSQL access from external machine
-- [ ] 3.25 - Test llama.cpp access: `curl -I https://llm.perdrizet.org`
-- [ ] 3.26 - Update documentation
-- [ ] 3.27 - Update services.md
-- [ ] 3.28 - Remove unused SSH reverse tunnel (no action needed - nothing listening)
+**Service 3: Public Access Strategy (1 hour)** ✅ COMPLETE
+- [x] 3.19 - Update nginx TCP stream for PostgreSQL (db.perdrizet.org:54321 → 100.64.0.2:5432)
+- [x] 3.20 - Rename gpt.conf → llm.conf, update domain (llm.perdrizet.org → 100.64.0.2:8502)
+- [x] 3.21 - Add DNS A records (user action: db.perdrizet.org, llm.perdrizet.org)
+- [x] 3.22 - Test nginx config: `nginx -t`
+- [x] 3.23 - Reload nginx: `nginx -s reload`
+- [x] 3.24 - Test PostgreSQL access from external machine
+- [x] 3.25 - Test llama.cpp access: `curl -I https://llm.perdrizet.org`
+- [x] 3.26 - Update documentation
+- [x] 3.27 - Update services.md
+- [x] 3.28 - Remove unused SSH reverse tunnel (no action needed - nothing listening)
 - **Downtime:** <1 min
 
 **Service 4: Headplane - SKIP** Already working, user said don't touch it
 
-**Service 8: Network Consolidation (1 hour)**
-- [ ] 3.59 - Verify Tailscale peer identity: `tailscale status`
-- [ ] 3.60 - Test PostgreSQL via Tailscale: `nc -zv 100.64.0.2 5432`
-- [ ] 3.61 - Test llama.cpp via Tailscale: `curl -I http://100.64.0.2:8502`
-- [ ] 3.62 - Verify nginx already using Tailscale IPs (from Service 3)
-- [ ] 3.63 - Monitor for 1 hour - no connectivity issues
-- [ ] 3.64 - Tear down WireGuard: `wg-quick down wg0; systemctl disable wg-quick@wg0`
-- [ ] 3.65 - Remove UFW rule for port 51820
-- [ ] 3.66 - Archive WireGuard config (backup)
-- [ ] 3.67 - Update documentation
+**Service 8: Network Consolidation (1 hour)** ✅ COMPLETE
+- [x] 3.59 - Verify Tailscale peer identity: `tailscale status`
+- [x] 3.60 - Test PostgreSQL via Tailscale: `nc -zv 100.64.0.2 5432`
+- [x] 3.61 - Test llama.cpp via Tailscale: `curl -I http://100.64.0.2:8502`
+- [x] 3.62 - Verify nginx already using Tailscale IPs (from Service 3)
+- [x] 3.63 - Monitor for 1 hour - no connectivity issues
+- [x] 3.64 - Tear down WireGuard: `wg-quick down wg0; systemctl disable wg-quick@wg0`
+- [x] 3.65 - Remove UFW rule for port 51820
+- [x] 3.66 - Archive WireGuard config (backup)
+- [x] 3.67 - Update documentation
 - **Downtime:** 2-3 min
 
 **🛑 PAUSE POINT - User Action Required:**
@@ -342,13 +342,15 @@ crontab -e  # Edit crontab
 
 ---
 
-## READY TO START
+## CURRENT STATUS
 
-**Next Action:** Begin Phase 1, Task 1.1 - Clean up unused Docker networks
+**Phases 1-2:** Complete  
+**Phase 3 Part A:** Complete (Services 1, 3, 8)  
+**Next Action:** User creates databases on pyrite, then begin Phase 3 Part B
 
 **Critical Path:**
-1. Phase 1 → evaluate → Phase 2 → Phase 3 Part A
-2. **PAUSE:** User creates pyrite databases
+1. ~~Phase 1 → evaluate → Phase 2 → Phase 3 Part A~~ ✅ Done
+2. **PAUSE (current):** User creates pyrite databases
 3. Phase 3 Part B → completion
 
 **Total Estimated Time:**

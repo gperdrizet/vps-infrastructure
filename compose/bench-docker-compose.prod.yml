@@ -71,6 +71,8 @@ services:
 
 volumes:
   bench-postgres-data:
+    external: true
+    name: docker_bench-postgres-data
 
 networks:
   bench-network:

@@ -13,14 +13,13 @@ vps-infrastructure/
 │   ├── bench-docker-compose.yml         # Bench base config
 │   └── bench-docker-compose.prod.yml    # Bench production
 ├── configs/                    # Service configurations
-│   ├── nginx/                  # Nginx site configs
+│   ├── nginx/                  # Nginx site configs and snippets
 │   └── monitoring/             # Prometheus, Grafana, Loki configs
 ├── scripts/                    # Automation scripts
 │   ├── deploy.sh              # Deployment automation
-│   ├── health-check.sh        # Service health verification
-│   └── generate-docs.sh       # Documentation generation
+│   └── health-check.sh        # Service health verification
 ├── docs/                       # Documentation
-├── .env.template              # Environment variables template
+├── docker-compose.monitoring.yml  # Monitoring stack compose
 └── README.md                  # This file
 ```
 
@@ -82,10 +81,14 @@ nano .env
   - Blackbox Exporter: :9115 (SSL/endpoint monitoring)
 
 - **Nginx** (Reverse Proxy)
+  - logkeep.perdrizet.org → :8001 (blue) / :8002 (green)
   - bench.perdrizet.org → :8010
   - staging.perdrizet.org → :8003
-  - headscale.perdrizet.org → :8443
-  - llm.perdrizet.org → pyrite:8502 (via Tailscale)
+  - model.perdrizet.org → pyrite:8502 (via Tailscale)
+  - headscale.perdrizet.org → :8090
+  - headplane.perdrizet.org → :3001
+  - grafana.perdrizet.org → :3000
+  - perdrizet.org → redirect to logkeep
   - db.perdrizet.org:54321 → pyrite:5432 (TCP stream)
 
 ### Remote services (Pyrite @ 100.64.0.2)
@@ -119,7 +122,7 @@ ssh pyrite "ls -lh /mnt/storage/backups/vps/"
 
 ## Migration status
 
-### Phase 1: Quick wins complete
+### Phase 1: Quick wins ✅ Complete
 - Docker network cleanup
 - UFW rules cleanup
 - Health check fixes
@@ -127,15 +130,28 @@ ssh pyrite "ls -lh /mnt/storage/backups/vps/"
 - Container health alerts
 - Backup system (local + remote to pyrite)
 
-### Phase 2: Foundation in progress
+### Phase 2: Foundation ✅ Complete
 - Version control setup (this repository)
 - Configuration export
 - Deployment automation
 
-### Phase 3: Migration planned
-- Database migration to pyrite
-- Network consolidation (Tailscale only)
-- Monitoring stack separation
+### Phase 3A: Monitoring Separation ✅ Complete
+- Independent monitoring stack at /srv/infra/
+- 10.6GB historical data migrated
+- monitoring-network isolated from apps
+
+### Phase 3B-C: Backups + Nginx ✅ Complete
+- Daily backups working, synced to pyrite
+- Nginx migrated to conf.d, all SSL on Let's Encrypt
+- Blue/green deploy for LogKeep via symlink
+
+### Network Consolidation ✅ Complete
+- WireGuard decommissioned
+- All remote connectivity via Tailscale
+
+### Phase 3D: Database Migration ⏳ Next
+- Migrate PostgreSQL to pyrite
+- Remove local database containers
 
 ## Monitoring
 
@@ -148,10 +164,13 @@ ssh pyrite "ls -lh /mnt/storage/backups/vps/"
 
 ### SSL certificates monitored
 
-- bench.perdrizet.org (57 days remaining)
-- staging.perdrizet.org (36 days)
-- headscale.perdrizet.org (36 days)
-- llm.perdrizet.org (monitoring configured)
+- bench.perdrizet.org
+- staging.perdrizet.org
+- headscale.perdrizet.org
+- logkeep.perdrizet.org
+- model.perdrizet.org
+- grafana.perdrizet.org
+- headplane.perdrizet.org
 
 ### Alerts configured
 
