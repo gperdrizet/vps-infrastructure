@@ -106,11 +106,15 @@ main() {
     echo ""
     
     echo "=== Application Containers ==="
-    check_container "logkeep-app" false
+    check_container "logkeep-blue" false
+    check_container "logkeep-green" false
     check_container "logkeep-staging" false
     check_container "logkeep-postgres" false
-    check_container "docker-bench-app-1" false
-    check_container "docker-bench-postgres-1" false
+    check_container "bench-web" false
+    check_container "bench-celery" false
+    check_container "bench-celery-beat" false
+    check_container "bench-postgres" false
+    check_container "bench-redis" false
     echo ""
     
     echo "=== HTTP Endpoints ==="

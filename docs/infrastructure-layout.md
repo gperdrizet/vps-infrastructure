@@ -94,18 +94,19 @@ Current VPS organization after Phase 1-3C (Monitoring Separation, Backups, Nginx
 - **logkeep-blue** (8001) - LogKeep production (blue slot)
 - **logkeep-green** (8002) - LogKeep production (green slot, started on deploy)
 - **logkeep-staging** (8003) - LogKeep staging environment
-- **bench-bench-web-1** (8010) - Bench web application
-- **bench-bench-celery-1** - Bench background tasks
-- **bench-bench-celery-beat-1** - Bench scheduled tasks
+- **bench-web** (8010) - Bench web application
+- **bench-celery** - Bench background tasks
+- **bench-celery-beat** - Bench scheduled tasks
 
 ### Support Services
 - **logkeep-postgres** (5432) - PostgreSQL for LogKeep
-- **bench-bench-postgres-1** (5432) - PostgreSQL for Bench
-- **bench-bench-redis-1** (6379) - Redis for Bench/Celery
+- **bench-postgres** (5432) - PostgreSQL for Bench
+- **bench-redis** (6379) - Redis for Bench/Celery
 
 ### Exporters
-- **logkeep-nginx-exporter** (9113) - Nginx metrics for Prometheus
+- **monitoring-nginx-exporter** (9113) - Nginx metrics for Prometheus
 - **logkeep-postgres-exporter** (9187) - PostgreSQL metrics
+- **bench-postgres-exporter** (9188) - PostgreSQL metrics
 
 ### External Services
 - **headplane** - Headscale UI (port 3001)

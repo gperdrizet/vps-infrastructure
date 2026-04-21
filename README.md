@@ -6,21 +6,21 @@ Infrastructure as code for VPS services, monitoring, and configuration managemen
 
 ```
 vps-infrastructure/
-├── compose/                    # Docker Compose files
-│   ├── logkeep-docker-compose.yml       # LogKeep base config
-│   ├── logkeep-docker-compose.prod.yml  # LogKeep production
+├── compose/                                # Docker Compose files
+│   ├── logkeep-docker-compose.yml          # LogKeep base config
+│   ├── logkeep-docker-compose.prod.yml     # LogKeep production
 │   ├── logkeep-docker-compose.staging.yml  # LogKeep staging
-│   ├── bench-docker-compose.yml         # Bench base config
-│   └── bench-docker-compose.prod.yml    # Bench production
-├── configs/                    # Service configurations
-│   ├── nginx/                  # Nginx site configs and snippets
-│   └── monitoring/             # Prometheus, Grafana, Loki configs
-├── scripts/                    # Automation scripts
-│   ├── deploy.sh              # Deployment automation
-│   └── health-check.sh        # Service health verification
-├── docs/                       # Documentation
-├── docker-compose.monitoring.yml  # Monitoring stack compose
-└── README.md                  # This file
+│   ├── bench-docker-compose.yml            # Bench base config
+│   └── bench-docker-compose.prod.yml       # Bench production
+├── configs/                                # Service configurations
+│   ├── nginx/                              # Nginx site configs and snippets
+│   └── monitoring/                         # Prometheus, Grafana, Loki configs
+├── scripts/                                # Automation scripts
+│   ├── deploy.sh                           # Deployment automation
+│   └── health-check.sh                     # Service health verification
+├── docs/                                   # Documentation
+├── docker-compose.monitoring.yml           # Monitoring stack compose
+└── README.md                               # This file
 ```
 
 ## Quick start

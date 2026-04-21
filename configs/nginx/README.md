@@ -144,7 +144,7 @@ server {
 ## Monitoring
 
 Nginx metrics exported to Prometheus via:
-- **logkeep-nginx-exporter** (port 9113)
+- **monitoring-nginx-exporter** (port 9113)
 - Scraped by monitoring-prometheus
 - Alerts configured for:
   - High error rates

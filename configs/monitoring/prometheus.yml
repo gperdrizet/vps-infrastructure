@@ -33,13 +33,21 @@ scrape_configs:
           service: 'node-exporter'
           instance: 'vps-primary'
 
-  # PostgreSQL Exporter
-  - job_name: 'postgres-exporter'
+  # LogKeep PostgreSQL Exporter
+  - job_name: 'logkeep-postgres-exporter'
     static_configs:
       - targets: ['logkeep-postgres-exporter:9187']
         labels:
           service: 'postgresql'
           database: 'logkeep'
+
+  # Bench PostgreSQL Exporter
+  - job_name: 'bench-postgres-exporter'
+    static_configs:
+      - targets: ['host.docker.internal:9188']
+        labels:
+          service: 'postgresql'
+          database: 'bench'
 
   # LogKeep Application (Blue)
   - job_name: 'logkeep-blue'
@@ -82,7 +90,7 @@ scrape_configs:
   # Nginx Metrics
   - job_name: 'nginx'
     static_configs:
-      - targets: ['logkeep-nginx-exporter:9113']
+      - targets: ['monitoring-nginx-exporter:9113']
         labels:
           service: 'nginx'
           instance: 'vps-primary'

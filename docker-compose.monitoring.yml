@@ -143,6 +143,24 @@ services:
         max-size: "50m"
         max-file: "5"
 
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: monitoring-nginx-exporter
+    restart: unless-stopped
+    command:
+      - '--nginx.scrape-uri=http://host.docker.internal/nginx_status'
+    ports:
+      - "127.0.0.1:9113:9113"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - monitoring-network
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+
   node-exporter:
     image: prom/node-exporter:latest
     container_name: monitoring-node-exporter

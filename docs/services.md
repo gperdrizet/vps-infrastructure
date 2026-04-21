@@ -92,7 +92,6 @@ Managed by `/opt/logkeep/docker/` (project: `logkeep`).
 | 8001  | logkeep-blue               | LogKeep blue (production)   |
 | 8002  | logkeep-green              | LogKeep green (production)  |
 | 8003  | logkeep-staging            | LogKeep staging             |
-| 9113  | logkeep-nginx-exporter     | nginx Prometheus exporter   |
 | 9187  | logkeep-postgres-exporter  | Postgres Prometheus exporter|
 
 ### Docker containers (bench stack)
@@ -101,11 +100,12 @@ Managed by `/opt/bench/docker/docker-compose.prod.yml` (project: `bench`).
 
 | Port  | Container                  | Service                  |
 |-------|----------------------------|--------------------------|
-| 8010  | bench-bench-web-1          | Bench web app            |
-| 5432  | bench-bench-postgres-1     | PostgreSQL (internal)    |
-| N/A   | bench-bench-celery-1       | Celery worker (internal) |
-| N/A   | bench-bench-celery-beat-1  | Celery beat (internal)   |
-| 6379  | bench-bench-redis-1        | Redis (internal)         |
+| 8010  | bench-web                  | Bench web app            |
+| 5432  | bench-postgres             | PostgreSQL (internal)    |
+| N/A   | bench-celery               | Celery worker (internal) |
+| N/A   | bench-celery-beat          | Celery beat (internal)   |
+| 6379  | bench-redis                | Redis (internal)         |
+| 9188  | bench-postgres-exporter    | Postgres Prometheus exporter |
 
 
 ---

@@ -131,27 +131,6 @@ services:
     labels:
       - "com.logkeep.service=monitoring"
 
-  # Nginx Prometheus Exporter
-  nginx-exporter:
-    image: nginx/nginx-prometheus-exporter:latest
-    container_name: logkeep-nginx-exporter
-    restart: unless-stopped
-    command:
-      - '-nginx.scrape-uri=http://host.docker.internal/nginx_status'
-    ports:
-      - "127.0.0.1:9113:9113"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    networks:
-      - logkeep-network
-    logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "5"
-    labels:
-      - "com.logkeep.service=monitoring"
-
   # Headplane (Headscale web UI)
   headplane:
     image: ghcr.io/tale/headplane:latest

@@ -129,7 +129,7 @@ groups:
     rules:
       # Container Unhealthy
       - alert: ContainerUnhealthy
-        expr: container_last_seen{name=~"logkeep-.*|docker-bench-.*|headplane"} < (time() - 60)
+        expr: container_last_seen{name=~"logkeep-.*|bench-.*|headplane"} < (time() - 60)
         for: 2m
         labels:
           severity: warning
@@ -140,7 +140,7 @@ groups:
 
       # Container Restarting Frequently
       - alert: ContainerRestartingFrequently
-        expr: rate(container_last_seen{name=~"logkeep-.*|docker-bench-.*"}[15m]) > 0.01
+        expr: rate(container_last_seen{name=~"logkeep-.*|bench-.*"}[15m]) > 0.01
         for: 5m
         labels:
           severity: warning
@@ -151,7 +151,7 @@ groups:
 
       # Container High Memory Usage
       - alert: ContainerHighMemoryUsage
-        expr: (container_memory_usage_bytes{name=~"logkeep-.*|docker-bench-.*"} / container_spec_memory_limit_bytes{name=~"logkeep-.*|docker-bench-.*"}) > 0.90
+        expr: (container_memory_usage_bytes{name=~"logkeep-.*|bench-.*"} / container_spec_memory_limit_bytes{name=~"logkeep-.*|bench-.*"}) > 0.90
         for: 5m
         labels:
           severity: warning
@@ -162,7 +162,7 @@ groups:
 
       # Container CPU Throttling
       - alert: ContainerCPUThrottling
-        expr: rate(container_cpu_cfs_throttled_seconds_total{name=~"logkeep-.*|docker-bench-.*"}[5m]) > 0.5
+        expr: rate(container_cpu_cfs_throttled_seconds_total{name=~"logkeep-.*|bench-.*"}[5m]) > 0.5
         for: 5m
         labels:
           severity: warning

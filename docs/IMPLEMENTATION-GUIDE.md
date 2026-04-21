@@ -21,7 +21,7 @@
   - DB: `logkeep-postgres` (local container) with databases: `logkeep`, `logkeep_staging`
   - User: `logkeep_admin`
 - Bench: `/opt/bench/docker/` - single deployment (8010, under 'bench' project)
-  - DB: `bench-bench-postgres-1` (local container) with database: `bench`
+   - DB: `bench-postgres` (local container) with database: `bench`
   - User: `bench`
   - No staging environment yet
 
@@ -57,7 +57,7 @@ The stale 'docker' compose project has been eliminated. All containers now use p
 #### Changes Made
 
 1. **Bench Project Rename**
-   - Moved containers from 'docker' to 'bench' project: `docker-bench-*` → `bench-bench-*`
+   - Moved containers from 'docker' to 'bench' project: `docker-bench-*` → explicit `bench-*` names
    - Modified compose file to use external volume `docker_bench-postgres-data` to preserve data
    - All 5 containers (web, postgres, redis, celery, celery-beat) now running under 'bench' project
 
@@ -295,7 +295,7 @@ crontab -e  # Edit crontab
 **Service 2: Database Setup Verification (30 min)**
 - [ ] 3.10 - Test connection to pyrite PostgreSQL: `psql -h 100.64.0.2 -p 5432 -U logkeep_user -d logkeep_prod`
 - [ ] 3.11 - Verify all 4 databases exist and users have correct permissions
-- [ ] 3.12 - Export bench database: `docker exec docker-bench-postgres-1 pg_dump -U bench bench > bench-export.sql`
+- [ ] 3.12 - Export bench database: `docker exec bench-postgres pg_dump -U bench bench > bench-export.sql`
 - [ ] 3.13 - Import to pyrite: `psql -h 100.64.0.2 -U bench_user -d bench_prod < bench-export.sql`
 - [ ] 3.14 - Export logkeep production: `docker exec logkeep-postgres pg_dump -U logkeep_admin logkeep > logkeep-prod-export.sql`
 - [ ] 3.15 - Export logkeep staging: `docker exec logkeep-postgres pg_dump -U logkeep_admin logkeep_staging > logkeep-staging-export.sql`
