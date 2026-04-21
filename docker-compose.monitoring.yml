@@ -191,7 +191,7 @@ services:
         max-file: "5"
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
     container_name: monitoring-cadvisor
     restart: unless-stopped
     privileged: true
@@ -201,8 +201,6 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
-    ports:
-      - "127.0.0.1:8080:8080"
     networks:
       - monitoring-network
     logging:
