@@ -10,6 +10,9 @@ networks:
   logkeep-network:
     name: logkeep_logkeep-network
     external: true
+  bench-network:
+    name: bench_bench-network
+    external: true
 
 services:
   prometheus:
@@ -34,6 +37,7 @@ services:
     networks:
       - monitoring-network
       - logkeep-network
+      - bench-network
     logging:
       driver: json-file
       options:

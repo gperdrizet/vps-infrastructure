@@ -44,7 +44,7 @@ scrape_configs:
   # Bench PostgreSQL Exporter
   - job_name: 'bench-postgres-exporter'
     static_configs:
-      - targets: ['host.docker.internal:9188']
+      - targets: ['bench-postgres-exporter:9187']
         labels:
           service: 'postgresql'
           database: 'bench'
@@ -53,7 +53,7 @@ scrape_configs:
   - job_name: 'logkeep-blue'
     metrics_path: '/metrics'
     static_configs:
-      - targets: ['172.18.0.1:8001']
+      - targets: ['logkeep-blue:8000']
         labels:
           service: 'logkeep'
           slot: 'blue'
@@ -63,7 +63,7 @@ scrape_configs:
   - job_name: 'logkeep-green'
     metrics_path: '/metrics'
     static_configs:
-      - targets: ['172.18.0.1:8002']
+      - targets: ['logkeep-green:8000']
         labels:
           service: 'logkeep'
           slot: 'green'
