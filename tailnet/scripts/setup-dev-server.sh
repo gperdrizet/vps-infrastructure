@@ -169,6 +169,8 @@ c.ServerApp.ip = '127.0.0.1'
 c.ServerApp.port = 47302
 c.ServerApp.open_browser = False
 c.ServerApp.allow_remote_access = False
+c.ServerApp.allow_origin = '*'
+c.ServerApp.local_hostnames = ['localhost', '127.0.0.1', '::1', 'jupyter.perdrizet.org']
 
 # Password is set separately with: jupyter server password
 # The hashed password will be stored in jupyter_server_config.json
