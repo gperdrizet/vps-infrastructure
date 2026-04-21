@@ -211,7 +211,7 @@ WorkingDirectory=$DEV_USER_HOME
 
 ExecStart=$OPENVSCODE_INSTALL_DIR/bin/openvscode-server \\
     --host 127.0.0.1 \\
-    --port 8080 \\
+    --port 18080 \\
     --without-connection-token \\
     --server-data-dir $DEV_USER_HOME/.openvscode-server
 
@@ -282,7 +282,7 @@ ExecStart=/usr/bin/autossh -M 0 -N \\
     -o "ExitOnForwardFailure=yes" \\
     -o "StrictHostKeyChecking=accept-new" \\
     -o "BatchMode=yes" \\
-    -R 127.0.0.1:8080:127.0.0.1:8080 \\
+    -R 127.0.0.1:18080:127.0.0.1:18080 \\
     -R 127.0.0.1:8888:127.0.0.1:8888 \\
     ${VPS_USER}@${VPS_HOST}
 
@@ -333,7 +333,7 @@ echo "   sudo systemctl start openvscode-server jupyterlab"
 echo "   sudo systemctl start dev-tunnel"
 echo
 echo "5. VERIFY tunnel on VPS:"
-echo "   curl -s http://127.0.0.1:8080 | head -3   # should return HTML"
+echo "   curl -s http://127.0.0.1:18080 | head -3  # should return HTML"
 echo "   curl -s http://127.0.0.1:8888 | head -3   # should return HTML"
 echo
 echo "Access from the browser:"
