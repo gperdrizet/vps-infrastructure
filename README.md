@@ -91,6 +91,8 @@ nano .env
   - headscale.perdrizet.org → :8090
   - headplane.perdrizet.org → :3001
   - grafana.perdrizet.org → :3000
+  - code.perdrizet.org → pyrite:47301 (via autossh tunnel)
+  - jupyter.perdrizet.org → pyrite:47302 (via autossh tunnel)
   - perdrizet.org → redirect to logkeep
   - db.perdrizet.org:54321 → pyrite:5432 (TCP stream)
 
@@ -99,6 +101,8 @@ nano .env
 - PostgreSQL 16 (containerized)
 - llama.cpp (systemd service on :8502)
 - postgres_exporter (metrics)
+- OpenVSCode Server (systemd service on :47301, tunneled via autossh dev-tunnel.service)
+- JupyterLab (systemd service on :47302, tunneled via autossh dev-tunnel.service)
 - RAID array with SSD cache
 
 ## Security
@@ -134,6 +138,7 @@ ssh pyrite "ls -lh /mnt/storage/backups/vps/"
 - **Phase 3C: Nginx Configuration** - conf.d structure, blue/green deploy via symlink, all SSL on Let's Encrypt
 - **Network Consolidation** - WireGuard decommissioned, all remote connectivity via Tailscale
 - **Docker Project Cleanup** - Proper compose project assignments (bench, logkeep, infra)
+- **Remote Dev Environment** - OpenVSCode Server + JupyterLab on pyrite, tunneled through VPS and served at code.perdrizet.org and jupyter.perdrizet.org
 
 ### ⏳ Next
 
