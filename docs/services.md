@@ -4,7 +4,7 @@ A record of all services running on gatekeeper (74.208.107.78), the ports
 they use, and any domains they are exposed on. Keep this file updated whenever
 a service is added, removed, or reconfigured.
 
-Last updated: 2026-04-22 (Added OpenVSCode Server and JupyterLab remote dev services)
+Last updated: 2026-04-22 (Added OpenVSCode Server, JupyterLab, and VS Code Tunnel remote dev services)
 
 
 ---
@@ -52,6 +52,12 @@ to localhost ports that are kept open by an autossh reverse tunnel from pyrite
 (`dev-tunnel.service` on pyrite). See `tailnet/scripts/setup-dev-server.sh`
 for service definitions.
 
+`vscode.dev/tunnel/pyrite` provides an alternative browser-based VS Code
+access path via the Microsoft relay service (`vscode-tunnel.service` on
+pyrite). This route supports the full Microsoft Extension Marketplace,
+including GitHub Copilot, which is unavailable on code.perdrizet.org
+(Open VSX registry only). Authentication uses the `gperdrizet` GitHub account.
+
 Blue/green deployment for LogKeep uses a symlink at
 `/etc/nginx/conf.d/logkeep.conf` → `/etc/nginx/logkeep-configs/{blue,green}.conf`.
 
@@ -72,6 +78,10 @@ running on pyrite). They are only reachable via nginx on the VPS.
 |-------|----------------------|-----------------------|
 | 47301 | pyrite:47301         | OpenVSCode Server     |
 | 47302 | pyrite:47302         | JupyterLab            |
+
+**VS Code Tunnel** (`vscode-tunnel.service` on pyrite) connects outbound to
+the Microsoft relay — no VPS port is involved. Accessible at
+`https://vscode.dev/tunnel/pyrite`.
 
 ### Headscale
 
@@ -147,6 +157,7 @@ The peer at 100.64.0.2 (pyrite) hosts:
 - PostgreSQL server (port 5432) - accessible via nginx TCP proxy on port 54321
 - OpenVSCode Server (port 47301) - tunneled to VPS via autossh, proxied via code.perdrizet.org
 - JupyterLab (port 47302) - tunneled to VPS via autossh, proxied via jupyter.perdrizet.org
+- VS Code Tunnel - outbound Microsoft relay connection, accessible at vscode.dev/tunnel/pyrite (full marketplace + Copilot)
 
 **Note:** WireGuard (wg0) has been decommissioned. All remote connectivity
 now uses Tailscale.

@@ -103,6 +103,7 @@ nano .env
 - postgres_exporter (metrics)
 - OpenVSCode Server (systemd service on :47301, tunneled via autossh dev-tunnel.service)
 - JupyterLab (systemd service on :47302, tunneled via autossh dev-tunnel.service)
+- VS Code Tunnel (systemd vscode-tunnel.service, outbound MS relay, accessible at vscode.dev/tunnel/pyrite, supports Copilot)
 - RAID array with SSD cache
 
 ## Security
@@ -138,7 +139,7 @@ ssh pyrite "ls -lh /mnt/storage/backups/vps/"
 - **Phase 3C: Nginx Configuration** - conf.d structure, blue/green deploy via symlink, all SSL on Let's Encrypt
 - **Network Consolidation** - WireGuard decommissioned, all remote connectivity via Tailscale
 - **Docker Project Cleanup** - Proper compose project assignments (bench, logkeep, infra)
-- **Remote Dev Environment** - OpenVSCode Server + JupyterLab on pyrite, tunneled through VPS and served at code.perdrizet.org and jupyter.perdrizet.org
+- **Remote Dev Environment** - OpenVSCode Server + JupyterLab on pyrite, tunneled through VPS and served at code.perdrizet.org and jupyter.perdrizet.org; VS Code Tunnel at vscode.dev/tunnel/pyrite with full Microsoft marketplace and GitHub Copilot
 
 ### ⏳ Next
 
