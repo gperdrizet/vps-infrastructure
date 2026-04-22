@@ -44,8 +44,8 @@ receivers:
           <hr>
           <p><strong>Description:</strong> {{ .Annotations.description }}</p>
           <p><strong>Summary:</strong> {{ .Annotations.summary }}</p>
-          <p><strong>Started:</strong> {{ date "2006-01-02 15:04:05 MST" (tz "America/New_York" .StartsAt) }}</p>
-          {{ if .EndsAt }}<p><strong>Ended:</strong> {{ date "2006-01-02 15:04:05 MST" (tz "America/New_York" .EndsAt) }}</p>{{ end }}
+          <p><strong>Started:</strong> {{ date "2006-01-02 3:04:05 PM MST" (tz "America/New_York" .StartsAt) }}</p>
+          {{ if eq .Status "resolved" }}<p><strong>Ended:</strong> {{ date "2006-01-02 3:04:05 PM MST" (tz "America/New_York" .EndsAt) }}</p>{{ end }}
           {{ end }}
 
   - name: 'email-critical'
@@ -64,8 +64,8 @@ receivers:
           <hr>
           <p><strong>Description:</strong> {{ .Annotations.description }}</p>
           <p><strong>Summary:</strong> {{ .Annotations.summary }}</p>
-          <p><strong>Started:</strong> {{ date "2006-01-02 15:04:05 MST" (tz "America/New_York" .StartsAt) }}</p>
-          {{ if .EndsAt }}<p><strong>Ended:</strong> {{ date "2006-01-02 15:04:05 MST" (tz "America/New_York" .EndsAt) }}</p>{{ end }}
+          <p><strong>Started:</strong> {{ date "2006-01-02 3:04:05 PM MST" (tz "America/New_York" .StartsAt) }}</p>
+          {{ if eq .Status "resolved" }}<p><strong>Ended:</strong> {{ date "2006-01-02 3:04:05 PM MST" (tz "America/New_York" .EndsAt) }}</p>{{ end }}
           {{ end }}
           <p><strong>Action Required:</strong> Immediate investigation needed</p>
 
