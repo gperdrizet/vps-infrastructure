@@ -103,17 +103,37 @@ scrape_configs:
           service: 'headscale'
           instance: 'vps-primary'
 
-  # SSL Certificate Monitoring
+  # SSL Certificate Monitoring - sites that return 2xx
   - job_name: 'ssl-certs'
     metrics_path: /probe
     params:
       module: [http_2xx]
     static_configs:
       - targets:
-          - https://headscale.perdrizet.org
           - https://bench.perdrizet.org
+          - https://logkeep.perdrizet.org
+          - https://model.perdrizet.org
+          - https://grafana.perdrizet.org
+          - https://headplane.perdrizet.org
+          - https://jupyter.perdrizet.org
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: monitoring-blackbox-exporter:9115
+
+  # SSL Certificate Monitoring - sites with non-2xx responses (auth/API roots)
+  - job_name: 'ssl-certs-reachable'
+    metrics_path: /probe
+    params:
+      module: [http_reachable]
+    static_configs:
+      - targets:
+          - https://headscale.perdrizet.org
           - https://staging.perdrizet.org
-          - https://llm.perdrizet.org
+          - https://code.perdrizet.org
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target

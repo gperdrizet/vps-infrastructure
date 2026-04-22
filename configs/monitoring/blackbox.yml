@@ -13,6 +13,23 @@ modules:
       tls_config:
         insecure_skip_verify: false
       preferred_ip_protocol: "ip4"
+
+  # Use for endpoints that return non-2xx for valid reasons (e.g. 401 auth
+  # required, 404 API root with no HTML UI). Proves SSL is valid and server
+  # is reachable without caring about the HTTP status code.
+  http_reachable:
+    prober: http
+    timeout: 5s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      valid_status_codes: [200, 301, 302, 303, 401, 404]
+      method: GET
+      no_follow_redirects: false
+      fail_if_ssl: false
+      fail_if_not_ssl: false
+      tls_config:
+        insecure_skip_verify: false
+      preferred_ip_protocol: "ip4"
   
   http_post_2xx:
     prober: http
