@@ -216,7 +216,8 @@ ExecStart=$OPENVSCODE_INSTALL_DIR/bin/openvscode-server \\
     --host 127.0.0.1 \\
     --port 47301 \\
     --without-connection-token \\
-    --server-data-dir $DEV_USER_HOME/.openvscode-server
+    --server-data-dir $DEV_USER_HOME/.openvscode-server \\
+    --proxy-uri https://code.perdrizet.org
 
 Restart=on-failure
 RestartSec=10
