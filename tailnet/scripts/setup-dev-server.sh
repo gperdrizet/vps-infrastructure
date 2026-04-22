@@ -43,6 +43,8 @@ VPS_USER='siderealyear'
 OPENVSCODE_INSTALL_DIR='/opt/openvscode-server'
 JUPYTER_VENV_DIR='/opt/jupyterlab-venv'
 TUNNEL_KEY='/etc/dev-tunnel/id_ed25519'
+VSCODE_CLI_INSTALL_DIR='/opt/vscode-cli'
+VSCODE_TUNNEL_NAME='pyrite'
 
 # --- Argument parsing --------------------------------------------------------
 
@@ -79,13 +81,14 @@ DEV_USER_HOME=$(getent passwd "$DEV_USER" | cut -d: -f6)
 
 ARCH=$(uname -m)
 case "$ARCH" in
-    x86_64)  OPENVSCODE_ARCH='x64'   ;;
-    aarch64) OPENVSCODE_ARCH='arm64' ;;
-    armv7l)  OPENVSCODE_ARCH='armhf' ;;
+    x86_64)  OPENVSCODE_ARCH='x64'   ; VSCODE_CLI_ARCH='cli-alpine-x64'   ;;
+    aarch64) OPENVSCODE_ARCH='arm64' ; VSCODE_CLI_ARCH='cli-alpine-arm64' ;;
+    armv7l)  OPENVSCODE_ARCH='armhf' ; VSCODE_CLI_ARCH='cli-alpine-armhf' ;;
     *) die "Unsupported architecture: $ARCH" ;;
 esac
 
 log "Detected architecture: $ARCH → openvscode-server asset: linux-$OPENVSCODE_ARCH"
+log "VS Code CLI asset: $VSCODE_CLI_ARCH"
 
 # --- Install dependencies ----------------------------------------------------
 
@@ -149,6 +152,28 @@ fi
 
 chown -R "$DEV_USER:$DEV_USER" "$JUPYTER_VENV_DIR"
 log "JupyterLab installed at $JUPYTER_VENV_DIR"
+
+# --- Install VS Code CLI (for vscode.dev tunnel + Copilot) ------------------
+
+step "Installing VS Code CLI"
+
+VSCODE_CLI_URL="https://code.visualstudio.com/sha/download?build=stable&os=${VSCODE_CLI_ARCH}"
+
+if [[ ! -f "$VSCODE_CLI_INSTALL_DIR/code" ]]; then
+    log "Downloading VS Code CLI ($VSCODE_CLI_ARCH)..."
+    TMP_CLI=$(mktemp -d)
+    curl -fsSL "$VSCODE_CLI_URL" -o "$TMP_CLI/vscode-cli.tar.gz" \
+        || die "Failed to download VS Code CLI from $VSCODE_CLI_URL"
+    mkdir -p "$VSCODE_CLI_INSTALL_DIR"
+    tar -xzf "$TMP_CLI/vscode-cli.tar.gz" -C "$VSCODE_CLI_INSTALL_DIR"
+    rm -rf "$TMP_CLI"
+    chmod 755 "$VSCODE_CLI_INSTALL_DIR/code"
+    log "VS Code CLI installed at $VSCODE_CLI_INSTALL_DIR/code"
+else
+    log "VS Code CLI already present at $VSCODE_CLI_INSTALL_DIR/code, skipping."
+fi
+
+chown -R "$DEV_USER:$DEV_USER" "$VSCODE_CLI_INSTALL_DIR"
 
 # --- Generate JupyterLab config ----------------------------------------------
 
@@ -300,6 +325,38 @@ EOF
 
 log "dev-tunnel.service written"
 
+# --- Create systemd service: vscode-tunnel ------------------------------------
+
+step "Creating systemd service: vscode-tunnel"
+
+cat > /etc/systemd/system/vscode-tunnel.service <<EOF
+[Unit]
+Description=VS Code Tunnel (Microsoft relay for Copilot access)
+After=network-online.target
+Wants=network-online.target
+Documentation=https://code.visualstudio.com/docs/remote/tunnels
+
+[Service]
+Type=simple
+User=$DEV_USER
+Group=$DEV_USER
+WorkingDirectory=$DEV_USER_HOME
+
+# Run 'sudo -u $DEV_USER $VSCODE_CLI_INSTALL_DIR/code tunnel user login --provider github'
+# once before starting this service to authenticate with GitHub.
+ExecStart=$VSCODE_CLI_INSTALL_DIR/code tunnel \\
+    --name $VSCODE_TUNNEL_NAME \\
+    --accept-server-license-terms
+
+Restart=on-failure
+RestartSec=15
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+log "vscode-tunnel.service written"
+
 # --- Enable and start services -----------------------------------------------
 
 step "Enabling services (not starting yet)"
@@ -308,10 +365,12 @@ systemctl daemon-reload
 systemctl enable openvscode-server.service
 systemctl enable jupyterlab.service
 systemctl enable dev-tunnel.service
+systemctl enable vscode-tunnel.service
 
 log "Services enabled. They will start on next boot, or manually with:"
 log "  sudo systemctl start openvscode-server jupyterlab"
 log "  (start dev-tunnel AFTER adding the public key to the VPS)"
+log "  (start vscode-tunnel AFTER authenticating with GitHub — see step 4 below)"
 
 # --- Print next steps --------------------------------------------------------
 
@@ -341,7 +400,14 @@ echo "5. VERIFY tunnel on VPS:"
 echo "   curl -s http://127.0.0.1:47301 | head -3  # should return HTML"
 echo "   curl -s http://127.0.0.1:47302 | head -3   # should return HTML"
 echo
+echo "4b. AUTHENTICATE VS CODE TUNNEL with GitHub (one-time, interactive):"
+echo "    sudo -u $DEV_USER $VSCODE_CLI_INSTALL_DIR/code tunnel user login --provider github"
+echo "    → Opens a browser URL — sign in as gperdrizet, authorize the app"
+echo "    Then start the tunnel service:"
+echo "    sudo systemctl start vscode-tunnel"
+echo
 echo "Access from the browser:"
-echo "   VS Code:    https://code.perdrizet.org"
+echo "   VS Code (open VSX, no Copilot): https://code.perdrizet.org"
+echo "   VS Code (MS marketplace, Copilot): https://vscode.dev/tunnel/$VSCODE_TUNNEL_NAME"
 echo "   JupyterLab: https://jupyter.perdrizet.org"
 echo "============================================================"
