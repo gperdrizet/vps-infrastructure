@@ -4,7 +4,7 @@ A record of all services running on gatekeeper (74.208.107.78), the ports
 they use, and any domains they are exposed on. Keep this file updated whenever
 a service is added, removed, or reconfigured.
 
-Last updated: 2026-04-22 (Added OpenVSCode Server, JupyterLab, and VS Code Tunnel remote dev services)
+Last updated: 2026-05-08 (model-gateway: replaced direct llama.cpp proxy with authenticated API gateway container)
 
 
 ---
@@ -36,7 +36,7 @@ All domains below are served over HTTPS on port 443.
 | logkeep.perdrizet.org      | http://127.0.0.1:8001    | Let's Encrypt (certbot) | LogKeep production (blue/green deploy)|
 | bench.perdrizet.org        | http://127.0.0.1:8010    | Let's Encrypt (certbot) | Docker-bench web app                  |
 | staging.perdrizet.org      | http://127.0.0.1:8003    | Let's Encrypt (certbot) | LogKeep staging environment           |
-| model.perdrizet.org        | http://100.64.0.2:8502   | Let's Encrypt (certbot) | llama.cpp server on pyrite (via Tailscale) |
+| model.perdrizet.org        | http://127.0.0.1:8503    | Let's Encrypt (certbot) | model-gateway container (authenticated API gateway; proxies to llama.cpp on pyrite) |
 | headscale.perdrizet.org    | http://127.0.0.1:8090    | Let's Encrypt (certbot) | Tailscale control server (Headscale)  |
 | headplane.perdrizet.org    | http://127.0.0.1:3001    | Let's Encrypt (certbot) | Headscale web UI                      |
 | grafana.perdrizet.org      | http://127.0.0.1:3000    | Let's Encrypt (certbot) | Grafana monitoring dashboard          |
@@ -121,6 +121,19 @@ Managed by `/opt/logkeep/docker/` (project: `logkeep`).
 | 8003  | logkeep-staging            | LogKeep staging             |
 | 9187  | logkeep-postgres-exporter  | Postgres Prometheus exporter|
 
+### Docker containers (model-gateway stack)
+
+Managed by `/opt/model-gateway/docker-compose.yml` (project: `model-gateway`).
+An authenticated, metered API gateway for the llama.cpp server running on pyrite.
+Users register at `/register` and receive a trial allocation (500k tokens, 14 days).
+API calls use Bearer tokens and are OpenAI SDK-compatible. Token top-ups via Stripe or BTCPay.
+
+| Port              | Container                    | Service                                    |
+|-------------------|------------------------------|--------------------------------------------|
+| 127.0.0.1:8503    | model-gateway-gateway-1      | FastAPI gateway (uvicorn)                  |
+| 5432 (internal)   | model-gateway-db-1           | PostgreSQL (users, balances, usage events) |
+| 100.64.0.1:8504   | model-gateway-adminer-1      | Adminer DB UI (Tailscale-only)             |
+
 ### Docker containers (bench stack)
 
 Managed by `/opt/bench/docker/docker-compose.prod.yml` (project: `bench`).
@@ -153,7 +166,7 @@ All client devices route internet traffic through the VPS exit node (100.64.0.1)
 SSH between Linux devices uses Tailscale IPs or MagicDNS hostnames (e.g., gatekeeper.ts.perdrizet.org).
 
 The peer at 100.64.0.2 (pyrite) hosts:
-- llama.cpp server (port 8502) - proxied via model.perdrizet.org
+- llama.cpp server (port 8502) - backend for model-gateway (accessed from gatekeeper over Tailscale)
 - PostgreSQL server (port 5432) - accessible via nginx TCP proxy on port 54321
 - OpenVSCode Server (port 47301) - tunneled to VPS via autossh, proxied via code.perdrizet.org
 - JupyterLab (port 47302) - tunneled to VPS via autossh, proxied via jupyter.perdrizet.org
@@ -174,7 +187,7 @@ now uses Tailscale.
 | logkeep.perdrizet.org      | A    | 74.208.107.78   | LogKeep production              |
 | bench.perdrizet.org        | A    | 74.208.107.78   | Bench web app                   |
 | staging.perdrizet.org      | A    | 74.208.107.78   | LogKeep staging                 |
-| model.perdrizet.org        | A    | 74.208.107.78   | LLM proxy to pyrite             |
+| model.perdrizet.org        | A    | 74.208.107.78   | model-gateway (authenticated LLM API) |
 | headscale.perdrizet.org    | A    | 74.208.107.78   | Tailscale control server        |
 | headplane.perdrizet.org    | A    | 74.208.107.78   | Headscale web UI                |
 | grafana.perdrizet.org      | A    | 74.208.107.78   | Monitoring dashboard            |

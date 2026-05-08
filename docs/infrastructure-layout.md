@@ -46,6 +46,12 @@ Current VPS organization after Phase 1-3C (Monitoring Separation, Backups, Nginx
 │   ├── nginx/               # Nginx configs for app
 │   └── scripts/             # App management scripts
 │
+├── model-gateway/           # model-gateway application
+│   ├── app/                 # FastAPI application code
+│   ├── docker-compose.yml   # Production stack
+│   ├── .env                 # Runtime secrets (DATABASE_URL, LLAMA_BASE_URL, etc.)
+│   └── .env.template        # Secret key reference
+│
 └── bench/                   # Bench application
     ├── src/                 # Application code
     └── docker/              # Docker compose files
@@ -60,7 +66,7 @@ Current VPS organization after Phase 1-3C (Monitoring Separation, Backups, Nginx
 │   ├── headplane.conf           # Headplane (-> 127.0.0.1:3001)
 │   ├── headscale.conf           # Headscale (-> 127.0.0.1:8090)
 │   ├── logkeep.conf             # Symlink -> /etc/nginx/logkeep-configs/blue.conf
-│   ├── model.conf               # LLM proxy (-> 100.64.0.2:8502)
+│   ├── model.conf               # model-gateway proxy (-> 127.0.0.1:8503)
 │   ├── perdrizet.conf           # Root domain redirect
 │   └── staging.conf             # LogKeep staging (-> 127.0.0.1:8003)
 ├── logkeep-configs/
@@ -97,6 +103,9 @@ Current VPS organization after Phase 1-3C (Monitoring Separation, Backups, Nginx
 - **bench-web** (8010) - Bench web application
 - **bench-celery** - Bench background tasks
 - **bench-celery-beat** - Bench scheduled tasks
+- **model-gateway-gateway-1** (127.0.0.1:8503) - Authenticated API gateway for llama.cpp on pyrite
+- **model-gateway-db-1** - PostgreSQL for model-gateway (users, token balances, usage)
+- **model-gateway-adminer-1** (100.64.0.1:8504) - Adminer DB UI (Tailscale-only)
 
 ### Support Services
 - **logkeep-postgres** (5432) - PostgreSQL for LogKeep
