@@ -112,7 +112,6 @@ scrape_configs:
       - targets:
           - https://bench.perdrizet.org
           - https://logkeep.perdrizet.org
-          - https://model.perdrizet.org
           - https://grafana.perdrizet.org
           - https://headplane.perdrizet.org
           - https://jupyter.perdrizet.org
@@ -134,6 +133,7 @@ scrape_configs:
           - https://headscale.perdrizet.org
           - https://staging.perdrizet.org
           - https://code.perdrizet.org
+          - https://model.perdrizet.org
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
