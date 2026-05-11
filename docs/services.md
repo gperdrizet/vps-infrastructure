@@ -128,11 +128,11 @@ An authenticated, metered API gateway for the llama.cpp server running on pyrite
 Users register at `/register` and receive a trial allocation (500k tokens, 14 days).
 API calls use Bearer tokens and are OpenAI SDK-compatible. Token top-ups via Stripe or BTCPay.
 
-| Port              | Container                    | Service                                    |
-|-------------------|------------------------------|--------------------------------------------|
-| 127.0.0.1:8503    | model-gateway-gateway-1      | FastAPI gateway (uvicorn)                  |
-| 5432 (internal)   | model-gateway-db-1           | PostgreSQL (users, balances, usage events) |
-| 100.64.0.1:8504   | model-gateway-adminer-1      | Adminer DB UI (Tailscale-only)             |
+| Port              | Container              | Service                                    |
+|-------------------|------------------------|--------------------------------------------||
+| 127.0.0.1:8503    | model-gateway-api      | FastAPI gateway (uvicorn)                  |
+| 5432 (internal)   | model-gateway-db       | PostgreSQL (users, balances, usage events) |
+| 100.64.0.1:8504   | model-gateway-adminer  | Adminer DB UI (Tailscale-only)             |
 
 ### Docker containers (bench stack)
 

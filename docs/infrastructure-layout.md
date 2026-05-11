@@ -103,9 +103,9 @@ Current VPS organization after Phase 1-3C (Monitoring Separation, Backups, Nginx
 - **bench-web** (8010) - Bench web application
 - **bench-celery** - Bench background tasks
 - **bench-celery-beat** - Bench scheduled tasks
-- **model-gateway-gateway-1** (127.0.0.1:8503) - Authenticated API gateway for llama.cpp on pyrite
-- **model-gateway-db-1** - PostgreSQL for model-gateway (users, token balances, usage)
-- **model-gateway-adminer-1** (100.64.0.1:8504) - Adminer DB UI (Tailscale-only)
+- **model-gateway-api** (127.0.0.1:8503) - Authenticated API gateway for llama.cpp on pyrite
+- **model-gateway-db** - PostgreSQL for model-gateway (users, token balances, usage)
+- **model-gateway-adminer** (100.64.0.1:8504) - Adminer DB UI (Tailscale-only)
 
 ### Support Services
 - **logkeep-postgres** (5432) - PostgreSQL for LogKeep
