@@ -42,7 +42,7 @@ services:
       - nbxplorer-data:/datadir
 
   btcd:
-    image: btcpayserver/bitcoin:27.0
+    image: btcpayserver/bitcoin:29.2
     restart: unless-stopped
     environment:
       BITCOIN_NETWORK: mainnet
