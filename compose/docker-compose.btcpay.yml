@@ -11,7 +11,7 @@
 
 services:
   btcpay:
-    image: btcpayserver/btcpayserver:2.0
+    image: btcpayserver/btcpayserver:2.3.9
     restart: unless-stopped
     ports:
       - "100.64.0.1:23000:3003"   # tailnet-only — not public
@@ -28,7 +28,7 @@ services:
       - btcpay-data:/datadir
 
   nbxplorer:
-    image: nicolasdorier/nbxplorer:2.5.17
+    image: nicolasdorier/nbxplorer:2.6.7
     restart: unless-stopped
     environment:
       NBXPLORER_NETWORK: mainnet
