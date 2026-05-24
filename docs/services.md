@@ -152,9 +152,10 @@ FastAPI backend + frontend web app. Staging is Tailscale-only (no public nginx v
 
 ### Docker containers (BTCPay stack)
 
-Managed by `/opt/model-gateway/docker-compose.btcpay.yml` (project: `compose`).
+Managed by `~/vps-infrastructure/compose/docker-compose.btcpay.yml` (project: `compose`).
 BTCPay Server for Bitcoin payment processing. Accessible at `100.64.0.1:23000` (Tailscale-only).
 `compose-btcd-1` is a Bitcoin full node — it maintains a copy of the blockchain and uses ~500MB–1GB RAM.
+**Currently stopped** (2026-05-24) — not in active use. To restart: `cd ~/vps-infrastructure/compose && docker compose -f docker-compose.btcpay.yml up -d`
 
 | Port                  | Container          | Service                                     |
 |-----------------------|--------------------|---------------------------------------------|

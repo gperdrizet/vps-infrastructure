@@ -108,8 +108,8 @@ Current VPS organization after Phase 1-3C (Monitoring Separation, Backups, Nginx
 - **monitoring-blackbox-exporter** (9115) - SSL cert / endpoint monitoring
 
 ### Applications
-- **logkeep-blue** (8001) - LogKeep production (blue slot)
-- **logkeep-green** (8002) - LogKeep production (green slot, started on deploy)
+- **logkeep-blue** (8001) - LogKeep production (blue slot) **[STOPPED 2026-05-24 — pending major update]**
+- **logkeep-green** (8002) - LogKeep production (green slot, started on deploy) **[STOPPED 2026-05-24 — pending major update]**
 - **logkeep-staging** (8003) - LogKeep staging environment
 - **bench-web** (8010) - Bench web application
 - **bench-celery** - Bench background tasks
@@ -123,10 +123,12 @@ Current VPS organization after Phase 1-3C (Monitoring Separation, Backups, Nginx
 - **bug-hunter-staging-frontend-1** (100.64.0.1:8507) - Bug Hunter staging frontend (Tailscale-only)
 - **bug-hunter-staging-backend-1** - Bug Hunter staging backend (internal)
 - **bug-hunter-staging-db-1** - PostgreSQL for Bug Hunter staging (internal)
-- **compose-btcpay-1** (100.64.0.1:23000) - BTCPay Server UI (Tailscale-only)
-- **compose-btcd-1** - Bitcoin full node (~500MB–1GB RAM)
-- **compose-nbxplorer-1** - NBXplorer blockchain indexer
+- **compose-btcpay-1** (100.64.0.1:23000) - BTCPay Server UI (Tailscale-only) **[STOPPED 2026-05-24 — not in active use]**
+- **compose-btcd-1** - Bitcoin full node (~500MB–1GB RAM) **[STOPPED]**
+- **compose-nbxplorer-1** - NBXplorer blockchain indexer **[STOPPED]**
 - **compose-btcpay-db-1** - PostgreSQL for BTCPay
+
+To restart BTCPay: `cd ~/vps-infrastructure/compose && docker compose -f docker-compose.btcpay.yml up -d`
 
 ### Support Services
 - **logkeep-postgres** (5432) - PostgreSQL for LogKeep
@@ -196,8 +198,11 @@ Current VPS organization after Phase 1-3C (Monitoring Separation, Backups, Nginx
 
 ## Next Steps
 
-1. **Database Migration to Pyrite** - Create databases, migrate data, update compose files
-2. **Remove Local PostgreSQL** - After migration validated
-3. **Pyrite PostgreSQL Monitoring** - Add scrape job for postgres_exporter on pyrite
-4. **Network Simplification** - Clean up unused Docker networks
-5. **Application Organization** - Consider moving to /srv/apps/
+1. **LogKeep major update** — containers stopped pending rewrite. When redeploying:
+   - Tune gunicorn worker count in `docker-compose.prod.yml` (current default spawns ~10 workers × ~135 MB = ~1.4 GB). Set `--workers` to 2–3 to cap at ~400 MB.
+   - Fix LLM API key in `.env` (logkeep has been sending 401s to model-gateway since the model-gateway migration; retry storm was generating `HighRequestRateSpike` alerts continuously)
+2. **Database Migration to Pyrite** - Create databases, migrate data, update compose files
+3. **Remove Local PostgreSQL** - After migration validated
+4. **Pyrite PostgreSQL Monitoring** - Add scrape job for postgres_exporter on pyrite
+5. **Network Simplification** - Clean up unused Docker networks
+6. **Application Organization** - Consider moving to /srv/apps/
