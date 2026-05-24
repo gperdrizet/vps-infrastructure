@@ -4,7 +4,7 @@ A record of all services running on gatekeeper (74.208.107.78), the ports
 they use, and any domains they are exposed on. Keep this file updated whenever
 a service is added, removed, or reconfigured.
 
-Last updated: 2026-05-08 (model-gateway: replaced direct llama.cpp proxy with authenticated API gateway container)
+Last updated: 2026-05-24 (added bug-hunter, BTCPay/bitcoin stack, and promptlyapi.com)
 
 
 ---
@@ -42,6 +42,8 @@ All domains below are served over HTTPS on port 443.
 | grafana.perdrizet.org      | http://127.0.0.1:3000    | Let's Encrypt (certbot) | Grafana monitoring dashboard          |
 | code.perdrizet.org         | http://127.0.0.1:47301   | Let's Encrypt (certbot) | OpenVSCode Server on pyrite (via autossh tunnel); nginx basic auth |
 | jupyter.perdrizet.org      | http://127.0.0.1:47302   | Let's Encrypt (certbot) | JupyterLab on pyrite (via autossh tunnel); JupyterLab built-in auth |
+| bug-hunter.perdrizet.org   | http://127.0.0.1:8509    | Let's Encrypt (certbot) | Bug Hunter web app (production)                                     |
+| promptlyapi.com            | http://127.0.0.1:8503    | Let's Encrypt (certbot) | Alternate public domain for model-gateway (same backend as model.perdrizet.org) |
 
 The nginx TCP stream proxy for port 54321 is configured directly in
 /etc/nginx/nginx.conf (not in a vhost file) and provides public internet
@@ -96,16 +98,16 @@ the Microsoft relay — no VPS port is involved. Accessible at
 
 Managed by `/srv/infra/docker-compose.monitoring.yml`.
 
-| Port  | Container                    | Service                     |
-|-------|------------------------------|-----------------------------|
-| 3000  | monitoring-grafana           | Grafana dashboard           |
-| 3100  | monitoring-loki              | Loki log aggregator         |
-| 8080  | monitoring-cadvisor          | cAdvisor container metrics  |
+| Port  | Container                    | Service                      |
+|-------|------------------------------|------------------------------|
+| 3000  | monitoring-grafana           | Grafana dashboard            |
+| 3100  | monitoring-loki              | Loki log aggregator          |
+| 8080  | monitoring-cadvisor          | cAdvisor container metrics   |
 | 9090  | monitoring-prometheus        | Prometheus metrics collector |
-| 9093  | monitoring-alertmanager      | Alertmanager                |
-| 9100  | monitoring-node-exporter     | Node exporter (host metrics)|
-| 9115  | monitoring-blackbox-exporter | Blackbox exporter (SSL/HTTP)|
-| N/A   | monitoring-promtail          | Promtail log shipper        |
+| 9093  | monitoring-alertmanager      | Alertmanager                 |
+| 9100  | monitoring-node-exporter     | Node exporter (host metrics) |
+| 9115  | monitoring-blackbox-exporter | Blackbox exporter (SSL/HTTP) |
+| N/A   | monitoring-promtail          | Promtail log shipper         |
 
 ### Docker containers (logkeep stack)
 
@@ -129,10 +131,37 @@ Users register at `/register` and receive a trial allocation (500k tokens, 14 da
 API calls use Bearer tokens and are OpenAI SDK-compatible. Token top-ups via Stripe or BTCPay.
 
 | Port              | Container              | Service                                    |
-|-------------------|------------------------|--------------------------------------------||
+|-------------------|------------------------|--------------------------------------------|
 | 127.0.0.1:8503    | model-gateway-api      | FastAPI gateway (uvicorn)                  |
 | 5432 (internal)   | model-gateway-db       | PostgreSQL (users, balances, usage events) |
 | 100.64.0.1:8504   | model-gateway-adminer  | Adminer DB UI (Tailscale-only)             |
+
+### Docker containers (bug-hunter stack)
+
+Managed by `/opt/bug-hunter/` (project: `bug-hunter`) and `/opt/bug-hunter-staging/` (project: `bug-hunter-staging`).
+FastAPI backend + frontend web app. Staging is Tailscale-only (no public nginx vhost).
+
+| Port               | Container                     | Service                          |
+|--------------------|-------------------------------|----------------------------------|
+| 127.0.0.1:8509     | bug-hunter-frontend-1         | Frontend (production)            |
+| 8000 (internal)    | bug-hunter-backend-1          | FastAPI backend (production)     |
+| 5432 (internal)    | bug-hunter-db-1               | PostgreSQL (production)          |
+| 100.64.0.1:8507    | bug-hunter-staging-frontend-1 | Frontend (staging, Tailscale-only) |
+| 8000 (internal)    | bug-hunter-staging-backend-1  | FastAPI backend (staging)        |
+| 5432 (internal)    | bug-hunter-staging-db-1       | PostgreSQL (staging)             |
+
+### Docker containers (BTCPay stack)
+
+Managed by `/opt/model-gateway/docker-compose.btcpay.yml` (project: `compose`).
+BTCPay Server for Bitcoin payment processing. Accessible at `100.64.0.1:23000` (Tailscale-only).
+`compose-btcd-1` is a Bitcoin full node — it maintains a copy of the blockchain and uses ~500MB–1GB RAM.
+
+| Port                  | Container          | Service                                     |
+|-----------------------|--------------------|---------------------------------------------|
+| 100.64.0.1:23000      | compose-btcpay-1   | BTCPay Server UI                            |
+| 8332-8333 (internal)  | compose-btcd-1     | Bitcoin full node (~500MB–1GB RAM)          |
+| 32838 (internal)      | compose-nbxplorer-1| NBXplorer blockchain indexer                |
+| 5432 (internal)       | compose-btcpay-db-1| PostgreSQL (BTCPay + NBXplorer data)        |
 
 ### Docker containers (bench stack)
 
@@ -193,3 +222,10 @@ now uses Tailscale.
 | grafana.perdrizet.org      | A    | 74.208.107.78   | Monitoring dashboard            |
 | code.perdrizet.org         | A    | 74.208.107.78   | OpenVSCode Server (remote dev)  |
 | jupyter.perdrizet.org      | A    | 74.208.107.78   | JupyterLab (remote dev)         |
+| bug-hunter.perdrizet.org   | A    | 74.208.107.78   | Bug Hunter web app              |
+
+**External domains (non-perdrizet.org)**
+
+| Record          | Type | Value         | Notes                                     |
+|-----------------|------|---------------|-------------------------------------------|
+| promptlyapi.com | A    | 74.208.107.78 | Alternate public domain for model-gateway |

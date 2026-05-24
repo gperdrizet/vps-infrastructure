@@ -59,15 +59,26 @@ Current VPS organization after Phase 1-3C (Monitoring Separation, Backups, Nginx
         ├── docker-compose.prod.yml     # Production (active)
         └── .env.production
 
+/opt/bug-hunter/                 # Bug Hunter application (production)
+    ├── backend/             # FastAPI application code
+    ├── frontend/            # Frontend code
+    ├── docker-compose.yml   # Base compose
+    └── docker-compose.prod.yml  # Production overrides (port 127.0.0.1:8509)
+
+/opt/bug-hunter-staging/         # Bug Hunter staging
+    └── docker-compose.staging.yml  # Staging overrides (port 100.64.0.1:8507)
+
 /etc/nginx/
 ├── conf.d/
 │   ├── bench.conf               # Bench app (-> 127.0.0.1:8010)
+│   ├── bug-hunter.conf          # Bug Hunter (-> 127.0.0.1:8509)
 │   ├── grafana.conf             # Grafana (-> 127.0.0.1:3000)
 │   ├── headplane.conf           # Headplane (-> 127.0.0.1:3001)
 │   ├── headscale.conf           # Headscale (-> 127.0.0.1:8090)
 │   ├── logkeep.conf             # Symlink -> /etc/nginx/logkeep-configs/blue.conf
 │   ├── model.conf               # model-gateway proxy (-> 127.0.0.1:8503)
 │   ├── perdrizet.conf           # Root domain redirect
+│   ├── promptlyapi.conf         # promptlyapi.com alias for model-gateway (-> 127.0.0.1:8503)
 │   └── staging.conf             # LogKeep staging (-> 127.0.0.1:8003)
 ├── logkeep-configs/
 │   ├── blue.conf                # LogKeep blue (-> 127.0.0.1:8001)
@@ -106,6 +117,16 @@ Current VPS organization after Phase 1-3C (Monitoring Separation, Backups, Nginx
 - **model-gateway-api** (127.0.0.1:8503) - Authenticated API gateway for llama.cpp on pyrite
 - **model-gateway-db** - PostgreSQL for model-gateway (users, token balances, usage)
 - **model-gateway-adminer** (100.64.0.1:8504) - Adminer DB UI (Tailscale-only)
+- **bug-hunter-frontend-1** (127.0.0.1:8509) - Bug Hunter production frontend
+- **bug-hunter-backend-1** - Bug Hunter FastAPI backend (internal)
+- **bug-hunter-db-1** - PostgreSQL for Bug Hunter (internal)
+- **bug-hunter-staging-frontend-1** (100.64.0.1:8507) - Bug Hunter staging frontend (Tailscale-only)
+- **bug-hunter-staging-backend-1** - Bug Hunter staging backend (internal)
+- **bug-hunter-staging-db-1** - PostgreSQL for Bug Hunter staging (internal)
+- **compose-btcpay-1** (100.64.0.1:23000) - BTCPay Server UI (Tailscale-only)
+- **compose-btcd-1** - Bitcoin full node (~500MB–1GB RAM)
+- **compose-nbxplorer-1** - NBXplorer blockchain indexer
+- **compose-btcpay-db-1** - PostgreSQL for BTCPay
 
 ### Support Services
 - **logkeep-postgres** (5432) - PostgreSQL for LogKeep
