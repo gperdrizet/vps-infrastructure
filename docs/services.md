@@ -36,14 +36,14 @@ All domains below are served over HTTPS on port 443.
 | logkeep.perdrizet.org      | http://127.0.0.1:8001    | Let's Encrypt (certbot) | LogKeep production (blue/green deploy)|
 | bench.perdrizet.org        | http://127.0.0.1:8010    | Let's Encrypt (certbot) | Docker-bench web app                  |
 | staging.perdrizet.org      | http://127.0.0.1:8003    | Let's Encrypt (certbot) | LogKeep staging environment           |
-| model.perdrizet.org        | http://127.0.0.1:8503    | Let's Encrypt (certbot) | model-gateway container (authenticated API gateway; proxies to llama.cpp on pyrite) |
+| model.perdrizet.org        | http://127.0.0.1:8503    | Let's Encrypt (certbot) | model-gateway (legacy domain; replaced by promptlyapi.com) |
 | headscale.perdrizet.org    | http://127.0.0.1:8090    | Let's Encrypt (certbot) | Tailscale control server (Headscale)  |
 | headplane.perdrizet.org    | http://127.0.0.1:3001    | Let's Encrypt (certbot) | Headscale web UI                      |
 | grafana.perdrizet.org      | http://127.0.0.1:3000    | Let's Encrypt (certbot) | Grafana monitoring dashboard          |
 | code.perdrizet.org         | http://127.0.0.1:47301   | Let's Encrypt (certbot) | OpenVSCode Server on pyrite (via autossh tunnel); nginx basic auth |
 | jupyter.perdrizet.org      | http://127.0.0.1:47302   | Let's Encrypt (certbot) | JupyterLab on pyrite (via autossh tunnel); JupyterLab built-in auth |
 | bug-hunter.perdrizet.org   | http://127.0.0.1:8509    | Let's Encrypt (certbot) | Bug Hunter web app (production)                                     |
-| promptlyapi.com            | http://127.0.0.1:8503    | Let's Encrypt (certbot) | Alternate public domain for model-gateway (same backend as model.perdrizet.org) |
+| promptlyapi.com            | http://127.0.0.1:8503    | Let's Encrypt (certbot) | model-gateway primary public domain (authenticated API gateway; proxies to llama.cpp on pyrite) |
 
 The nginx TCP stream proxy for port 54321 is configured directly in
 /etc/nginx/nginx.conf (not in a vhost file) and provides public internet
@@ -217,7 +217,7 @@ now uses Tailscale.
 | logkeep.perdrizet.org      | A    | 74.208.107.78   | LogKeep production              |
 | bench.perdrizet.org        | A    | 74.208.107.78   | Bench web app                   |
 | staging.perdrizet.org      | A    | 74.208.107.78   | LogKeep staging                 |
-| model.perdrizet.org        | A    | 74.208.107.78   | model-gateway (authenticated LLM API) |
+| model.perdrizet.org        | A    | 74.208.107.78   | model-gateway (legacy; replaced by promptlyapi.com) |
 | headscale.perdrizet.org    | A    | 74.208.107.78   | Tailscale control server        |
 | headplane.perdrizet.org    | A    | 74.208.107.78   | Headscale web UI                |
 | grafana.perdrizet.org      | A    | 74.208.107.78   | Monitoring dashboard            |
@@ -229,4 +229,4 @@ now uses Tailscale.
 
 | Record          | Type | Value         | Notes                                     |
 |-----------------|------|---------------|-------------------------------------------|
-| promptlyapi.com | A    | 74.208.107.78 | Alternate public domain for model-gateway |
+| promptlyapi.com | A    | 74.208.107.78 | Primary public domain for model-gateway (replaces model.perdrizet.org) |
