@@ -4,7 +4,7 @@ A record of all services running on gatekeeper (74.208.107.78), the ports
 they use, and any domains they are exposed on. Keep this file updated whenever
 a service is added, removed, or reconfigured.
 
-Last updated: 2026-05-24 (added bug-hunter, BTCPay/bitcoin stack, and promptlyapi.com)
+Last updated: 2026-06-10 (added feedback, admin, nixx, site-staging, model-gateway-staging, bench-staging; updated logkeep and staging status)
 
 
 ---
@@ -29,21 +29,25 @@ These ports are open in ufw and accept connections from the internet.
 Traffic reaches nginx on ports 80 and 443. Port 80 redirects to HTTPS.
 All domains below are served over HTTPS on port 443.
 
-| Domain                     | Backend                  | TLS source              | Notes                                 |
-|----------------------------|--------------------------|-------------------------|---------------------------------------|
-| perdrizet.org              | redirect                 | Let's Encrypt (certbot) | Redirects to logkeep.perdrizet.org    |
-| www.perdrizet.org          | redirect                 | Let's Encrypt (certbot) | Redirects to logkeep.perdrizet.org    |
-| logkeep.perdrizet.org      | http://127.0.0.1:8001    | Let's Encrypt (certbot) | LogKeep production (blue/green deploy)|
-| bench.perdrizet.org        | http://127.0.0.1:8010    | Let's Encrypt (certbot) | Docker-bench web app                  |
-| staging.perdrizet.org      | http://127.0.0.1:8003    | Let's Encrypt (certbot) | LogKeep staging environment           |
-| model.perdrizet.org        | http://127.0.0.1:8503    | Let's Encrypt (certbot) | model-gateway (legacy domain; replaced by promptlyapi.com) |
-| headscale.perdrizet.org    | http://127.0.0.1:8090    | Let's Encrypt (certbot) | Tailscale control server (Headscale)  |
-| headplane.perdrizet.org    | http://127.0.0.1:3001    | Let's Encrypt (certbot) | Headscale web UI                      |
-| grafana.perdrizet.org      | http://127.0.0.1:3000    | Let's Encrypt (certbot) | Grafana monitoring dashboard          |
-| code.perdrizet.org         | http://127.0.0.1:47301   | Let's Encrypt (certbot) | OpenVSCode Server on pyrite (via autossh tunnel); nginx basic auth |
-| jupyter.perdrizet.org      | http://127.0.0.1:47302   | Let's Encrypt (certbot) | JupyterLab on pyrite (via autossh tunnel); JupyterLab built-in auth |
-| bug-hunter.perdrizet.org   | http://127.0.0.1:8509    | Let's Encrypt (certbot) | Bug Hunter web app (production)                                     |
-| promptlyapi.com            | http://127.0.0.1:8503    | Let's Encrypt (certbot) | model-gateway primary public domain (authenticated API gateway; proxies to llama.cpp on pyrite) |
+| Domain                       | Backend                    | TLS source              | Notes                                 |
+|------------------------------|----------------------------|-------------------------|---------------------------------------|
+| perdrizet.org                | redirect                   | Let's Encrypt (certbot) | Redirects to logkeep.perdrizet.org    |
+| www.perdrizet.org            | redirect                   | Let's Encrypt (certbot) | Redirects to logkeep.perdrizet.org    |
+| logkeep.perdrizet.org        | http://127.0.0.1:8000      | Let's Encrypt (certbot) | LogKeep production (blue/green deploy); **currently down** — mid-update |
+| staging.perdrizet.org        | http://100.64.0.1:8003     | Let's Encrypt (certbot) | LogKeep staging (Tailscale-only access) |
+| feedback.perdrizet.org       | http://127.0.0.1:18080     | Let's Encrypt (certbot) | Feedback/contact form app (Django)    |
+| admin.perdrizet.org          | http://127.0.0.1:8600      | Let's Encrypt (certbot) | Site admin agent (LLM-backed, systemd service) |
+| nixx.perdrizet.org           | http://100.64.0.2:8000     | Let's Encrypt (certbot) | Personal assistant/memory PWA (proxies to pyrite) |
+| site-staging.perdrizet.org   | /opt/perdrizet.org-staging | Let's Encrypt (certbot) | Staging for perdrizet.org personal brand site (static Astro build) |
+| bench.perdrizet.org          | http://127.0.0.1:8010      | Let's Encrypt (certbot) | Bench web app                         |
+| model.perdrizet.org          | http://127.0.0.1:8503      | Let's Encrypt (certbot) | model-gateway (legacy domain; replaced by promptlyapi.com) |
+| headscale.perdrizet.org      | http://127.0.0.1:8090      | Let's Encrypt (certbot) | Tailscale control server (Headscale)  |
+| headplane.perdrizet.org      | http://127.0.0.1:3001      | Let's Encrypt (certbot) | Headscale web UI                      |
+| grafana.perdrizet.org        | http://127.0.0.1:3000      | Let's Encrypt (certbot) | Grafana monitoring dashboard          |
+| code.perdrizet.org           | http://127.0.0.1:47301     | Let's Encrypt (certbot) | OpenVSCode Server on pyrite (via autossh tunnel); nginx basic auth |
+| jupyter.perdrizet.org        | http://127.0.0.1:47302     | Let's Encrypt (certbot) | JupyterLab on pyrite (via autossh tunnel); JupyterLab built-in auth |
+| bug-hunter.perdrizet.org     | http://127.0.0.1:8509      | Let's Encrypt (certbot) | Bug Hunter web app (production)       |
+| promptlyapi.com              | http://127.0.0.1:8503      | Let's Encrypt (certbot) | model-gateway primary public domain (authenticated API gateway; proxies to llama.cpp on pyrite) |
 
 The nginx TCP stream proxy for port 54321 is configured directly in
 /etc/nginx/nginx.conf (not in a vhost file) and provides public internet
@@ -112,16 +116,17 @@ Managed by `/srv/infra/docker-compose.monitoring.yml`.
 ### Docker containers (logkeep stack)
 
 Managed by `/opt/logkeep/docker/` (project: `logkeep`).
-- Production services defined in `docker-compose.prod.yml`
-- Staging services defined in `docker-compose.staging.yml`
+- Production services defined in `docker-compose.prod.yml` (blue/green deploy)
+- Staging managed separately at `/opt/logkeep-staging/` with its own postgres
 
-| Port  | Container                  | Service                     |
-|-------|----------------------------|-----------------------------|
-| 5432  | logkeep-postgres           | PostgreSQL database         |
-| 8001  | logkeep-blue               | LogKeep blue (production)   |
-| 8002  | logkeep-green              | LogKeep green (production)  |
-| 8003  | logkeep-staging            | LogKeep staging             |
-| 9187  | logkeep-postgres-exporter  | Postgres Prometheus exporter|
+| Port                | Container                  | Service                      |
+|---------------------|----------------------------|------------------------------|
+| 127.0.0.1:5432      | logkeep-postgres           | PostgreSQL database (prod)   |
+| 127.0.0.1:8001      | logkeep-blue               | LogKeep blue (production) **[STOPPED — mid-update]** |
+| 127.0.0.1:8002      | logkeep-green              | LogKeep green (production) **[STOPPED — mid-update]** |
+| 127.0.0.1:9187      | logkeep-postgres-exporter  | Postgres Prometheus exporter |
+| 100.64.0.1:8003     | logkeep-staging            | LogKeep staging (Tailscale-only) |
+| 5432 (internal)     | logkeep-postgres-staging   | PostgreSQL for staging       |
 
 ### Docker containers (model-gateway stack)
 
@@ -130,11 +135,21 @@ An authenticated, metered API gateway for the llama.cpp server running on pyrite
 Users register at `/register` and receive a trial allocation (500k tokens, 14 days).
 API calls use Bearer tokens and are OpenAI SDK-compatible. Token top-ups via Stripe or BTCPay.
 
+**Production** (`/opt/model-gateway/`):
+
 | Port              | Container              | Service                                    |
-|-------------------|------------------------|--------------------------------------------|
+|-------------------|------------------------|--------------------------------------------||
 | 127.0.0.1:8503    | model-gateway-api      | FastAPI gateway (uvicorn)                  |
 | 5432 (internal)   | model-gateway-db       | PostgreSQL (users, balances, usage events) |
 | 100.64.0.1:8504   | model-gateway-adminer  | Adminer DB UI (Tailscale-only)             |
+
+**Staging** (`/opt/model-gateway-staging/`, Tailscale-only):
+
+| Port              | Container                    | Service                                    |
+|-------------------|------------------------------|--------------------------------------------||
+| 100.64.0.1:8505   | model-gateway-api-staging    | FastAPI gateway staging                    |
+| 5432 (internal)   | model-gateway-db-staging     | PostgreSQL (staging)                       |
+| 100.64.0.1:8506   | model-gateway-adminer-staging| Adminer DB UI (staging, Tailscale-only)    |
 
 ### Docker containers (bug-hunter stack)
 
@@ -168,14 +183,45 @@ BTCPay Server for Bitcoin payment processing. Accessible at `100.64.0.1:23000` (
 
 Managed by `/opt/bench/docker/docker-compose.prod.yml` (project: `bench`).
 
-| Port  | Container                  | Service                  |
-|-------|----------------------------|--------------------------|
-| 8010  | bench-web                  | Bench web app            |
-| 5432  | bench-postgres             | PostgreSQL (internal)    |
-| N/A   | bench-celery               | Celery worker (internal) |
-| N/A   | bench-celery-beat          | Celery beat (internal)   |
-| 6379  | bench-redis                | Redis (internal)         |
-| 9188  | bench-postgres-exporter    | Postgres Prometheus exporter |
+**Production**:
+
+| Port                | Container                  | Service                      |
+|---------------------|----------------------------|-----------------------------||
+| 127.0.0.1:8010      | bench-web                  | Bench web app                |
+| 5432 (internal)     | bench-postgres             | PostgreSQL                   |
+| N/A                 | bench-celery               | Celery worker                |
+| N/A                 | bench-celery-beat          | Celery beat                  |
+| 6379 (internal)     | bench-redis                | Redis                        |
+| 127.0.0.1:9188      | bench-postgres-exporter    | Postgres Prometheus exporter |
+
+**Staging** (`/opt/bench-staging/`, Tailscale-only at `100.64.0.1:8012`):
+
+| Port                | Container                  | Service                      |
+|---------------------|----------------------------|------------------------------|
+| 127.0.0.1:8011      | bench-web-staging          | Bench staging app            |
+| 5432 (internal)     | bench-postgres-staging     | PostgreSQL (staging)         |
+| N/A                 | bench-celery-staging       | Celery worker (staging)      |
+| N/A                 | bench-celery-beat-staging  | Celery beat (staging)        |
+| 6379 (internal)     | bench-redis-staging        | Redis (staging)              |
+
+Nginx listens on `100.64.0.1:8012` (Tailscale IP) for staging — no public domain.
+
+### Services on host (non-Docker)
+
+| Port             | Service                  | Notes                                                    |
+|------------------|--------------------------|----------------------------------------------------------|
+| 127.0.0.1:8600   | perdrizet-admin (systemd)| Site admin agent — uvicorn, `/opt/perdrizet.org-admin/`  |
+
+### Docker containers (feedback stack)
+
+Managed by `/opt/feedback/docker-compose.prod.yml` (project: `feedback`).
+Django feedback/contact form app for perdrizet.org.
+
+| Port                | Container          | Service                      |
+|---------------------|--------------------|------------------------------|
+| 127.0.0.1:18080     | feedback-app-1     | Django app (gunicorn)        |
+| N/A                 | feedback-worker-1  | Celery worker                |
+| 5432 (internal)     | feedback-db-1      | PostgreSQL                   |
 
 
 ---
@@ -212,18 +258,22 @@ now uses Tailscale.
 
 | Record                     | Type | Value           | Notes                           |
 |----------------------------|------|-----------------|---------------------------------|
-| perdrizet.org              | A    | 74.208.107.78   | Redirects to logkeep subdomain  |
-| www.perdrizet.org          | A    | 74.208.107.78   | Redirects to logkeep subdomain  |
-| logkeep.perdrizet.org      | A    | 74.208.107.78   | LogKeep production              |
-| bench.perdrizet.org        | A    | 74.208.107.78   | Bench web app                   |
-| staging.perdrizet.org      | A    | 74.208.107.78   | LogKeep staging                 |
-| model.perdrizet.org        | A    | 74.208.107.78   | model-gateway (legacy; replaced by promptlyapi.com) |
-| headscale.perdrizet.org    | A    | 74.208.107.78   | Tailscale control server        |
-| headplane.perdrizet.org    | A    | 74.208.107.78   | Headscale web UI                |
-| grafana.perdrizet.org      | A    | 74.208.107.78   | Monitoring dashboard            |
-| code.perdrizet.org         | A    | 74.208.107.78   | OpenVSCode Server (remote dev)  |
-| jupyter.perdrizet.org      | A    | 74.208.107.78   | JupyterLab (remote dev)         |
-| bug-hunter.perdrizet.org   | A    | 74.208.107.78   | Bug Hunter web app              |
+| perdrizet.org                | A    | 74.208.107.78   | Redirects to logkeep subdomain          |
+| www.perdrizet.org            | A    | 74.208.107.78   | Redirects to logkeep subdomain          |
+| logkeep.perdrizet.org        | A    | 74.208.107.78   | LogKeep production                      |
+| staging.perdrizet.org        | A    | 74.208.107.78   | LogKeep staging (Tailscale-only)        |
+| feedback.perdrizet.org       | A    | 74.208.107.78   | Feedback/contact app                    |
+| admin.perdrizet.org          | A    | 74.208.107.78   | Site admin agent                        |
+| nixx.perdrizet.org           | A    | 74.208.107.78   | Personal assistant PWA (proxies to pyrite) |
+| site-staging.perdrizet.org   | A    | 74.208.107.78   | Staging for perdrizet.org static site   |
+| bench.perdrizet.org          | A    | 74.208.107.78   | Bench web app                           |
+| model.perdrizet.org          | A    | 74.208.107.78   | model-gateway (legacy; replaced by promptlyapi.com) |
+| headscale.perdrizet.org      | A    | 74.208.107.78   | Tailscale control server                |
+| headplane.perdrizet.org      | A    | 74.208.107.78   | Headscale web UI                        |
+| grafana.perdrizet.org        | A    | 74.208.107.78   | Monitoring dashboard                    |
+| code.perdrizet.org           | A    | 74.208.107.78   | OpenVSCode Server (remote dev)          |
+| jupyter.perdrizet.org        | A    | 74.208.107.78   | JupyterLab (remote dev)                 |
+| bug-hunter.perdrizet.org     | A    | 74.208.107.78   | Bug Hunter web app                      |
 
 **External domains (non-perdrizet.org)**
 
