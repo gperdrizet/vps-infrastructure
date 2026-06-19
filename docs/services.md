@@ -138,7 +138,7 @@ API calls use Bearer tokens and are OpenAI SDK-compatible. Token top-ups via Str
 **Production** (`/opt/model-gateway/`):
 
 | Port              | Container              | Service                                    |
-|-------------------|------------------------|--------------------------------------------||
+|-------------------|------------------------|--------------------------------------------|
 | 127.0.0.1:8503    | model-gateway-api      | FastAPI gateway (uvicorn)                  |
 | 5432 (internal)   | model-gateway-db       | PostgreSQL (users, balances, usage events) |
 | 100.64.0.1:8504   | model-gateway-adminer  | Adminer DB UI (Tailscale-only)             |
@@ -146,7 +146,7 @@ API calls use Bearer tokens and are OpenAI SDK-compatible. Token top-ups via Str
 **Staging** (`/opt/model-gateway-staging/`, Tailscale-only):
 
 | Port              | Container                    | Service                                    |
-|-------------------|------------------------------|--------------------------------------------||
+|-------------------|------------------------------|--------------------------------------------|
 | 100.64.0.1:8505   | model-gateway-api-staging    | FastAPI gateway staging                    |
 | 5432 (internal)   | model-gateway-db-staging     | PostgreSQL (staging)                       |
 | 100.64.0.1:8506   | model-gateway-adminer-staging| Adminer DB UI (staging, Tailscale-only)    |
@@ -186,7 +186,7 @@ Managed by `/opt/bench/docker/docker-compose.prod.yml` (project: `bench`).
 **Production**:
 
 | Port                | Container                  | Service                      |
-|---------------------|----------------------------|-----------------------------||
+|---------------------|----------------------------|------------------------------|
 | 127.0.0.1:8010      | bench-web                  | Bench web app                |
 | 5432 (internal)     | bench-postgres             | PostgreSQL                   |
 | N/A                 | bench-celery               | Celery worker                |
